@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物 & 病虫害 Top 600 定制图鉴</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --plant-primary: #2e7d32;
+            --plant-bg: #e8f5e9;
+            --pest-primary: #c62828;
+            --pest-bg: #ffebee;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 60px;
+        }
+        
+        /* 顶部导航 */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-pills .nav-link {
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        /* 模式颜色逻辑 */
+        body[data-mode="plants"] .nav-pills .nav-link.active {
+            background-color: var(--plant-primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+        }
+        body[data-mode="pests"] .nav-pills .nav-link.active {
+            background-color: var(--pest-primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.3);
+        }
+
+        /* 搜索框 */
+        .search-wrapper {
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+        }
+        .search-input {
+            border-radius: 50px;
+            padding: 10px 20px 10px 45px;
+            border: 2px solid #eee;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            background: white;
+            border-color: #ddd;
+            box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+        }
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        /* 卡片样式 */
+        .item-card {
+            background: white;
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        /* 图片区域 */
+        .img-container {
+            height: 200px;
+            overflow: hidden;
+            background: #f0f0f0;
+            position: relative;
+        }
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+            opacity: 0; /* 默认隐藏，加载完成后显示 */
+        }
+        .img-container img.loaded {
+            opacity: 1;
+        }
+        .item-card:hover .img-container img {
+            transform: scale(1.1);
+        }
+
+        /* 骨架屏加载动画 */
+        .skeleton {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            z-index: 1;
+        }
+        @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* 卡片内容 */
+        .card-body {
+            padding: 16px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .item-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        /* 植物分类颜色 */
+        body[data-mode="plants"] .item-category {
+            background-color: var(--plant-bg);
+            color: var(--plant-primary);
+        }
+        /* 虫害分类颜色 */
+        body[data-mode="pests"] .item-category {
+            background-color: var(--pest-bg);
+            color: var(--pest-primary);
+        }
+
+        .item-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+        .item-sci {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 12px;
+            min-height: 21px; /* 保持高度即使内容为空 */
+        }
+        
+        /* 底部链接 */
+        .card-footer-link {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .btn-view {
+            font-size: 0.85rem;
+            padding: 6px 0;
+            width: 100%;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid #eee;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .btn-view:hover {
+            background: #f8f9fa;
+            color: #333;
+            border-color: #ddd;
+        }
+
+        /* 筛选区 */
+        .filters-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 5px 20px 5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        .filters-scroll::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .btn-filter {
+            border: 1px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            padding: 6px 18px;
+            transition: all 0.2s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-filter:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 激活态筛选器 */
+        body[data-mode="plants"] .btn-filter.active {
+            background: var(--plant-primary);
+            color: white;
+            border-color: var(--plant-primary);
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+        }
+        body[data-mode="pests"] .btn-filter.active {
+            background: var(--pest-primary);
+            color: white;
+            border-color: var(--pest-primary);
+            box-shadow: 0 4px 10px rgba(198, 40, 40, 0.2);
+        }
+
+        .id-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            z-index: 5;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body data-mode="plants"> <!-- 默认模式：Plants -->
+
+<!-- 顶部导航 -->
+<div class="navbar-custom">
+    <div class="container">
+        <div class="row align-items-center g-3">
+            <!-- 模式切换 -->
+            <div class="col-md-5 d-flex justify-content-center justify-content-md-start">
+                <ul class="nav nav-pills" id="modeTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="switchMode('plants', this); return false;">
+                            <i class="fas fa-leaf me-2"></i>植物图鉴
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="switchMode('pests', this); return false;">
+                            <i class="fas fa-bug me-2"></i>病虫害
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="col-md-7 d-flex justify-content-center justify-content-md-end">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="form-control search-input" placeholder="搜索名称、学名或编号...">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 主要内容区域 -->
+<div class="container mt-3">
+    
+    <!-- 动态筛选按钮 -->
+    <div class="filters-scroll text-center" id="filtersContainer">
+        <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 状态栏 -->
+    <div class="d-flex justify-content-between text-muted px-2 mb-3 align-items-center">
+        <small id="resultCount" class="fw-bold">正在加载...</small>
+        <small><i class="fas fa-info-circle me-1"></i>图片自动来自 Bing 搜索</small>
+    </div>
+
+    <!-- 内容网格 -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4" id="contentGrid">
+        <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 空状态提示 -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">没有找到相关结果</h4>
+        <p class="text-muted">请尝试更换关键词或切换分类</p>
+    </div>
+
+</div>
+
+<!-- 回到顶部按钮 -->
+<button onclick="window.scrollTo({top:0, behavior:'smooth'})" id="btnBackTop" class="btn btn-secondary rounded-circle shadow" style="position:fixed; bottom:30px; right:30px; width:50px; height:50px; z-index:99; display: none; opacity: 0.8;">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- 核心脚本 -->
+<script>
+    // ==========================================
+    // 1. 数据源 (基于您上传的 CSV 文件)
+    // ==========================================
+    const db = {
+        // 植物数据 (300条，完全来自您的文件)
+        plants: [
+            {'id': 1, 'cat': 'Houseplants', 'name': 'Swiss Cheese Plant', 'sci': 'Monstera deliciosa'}, {'id': 2, 'cat': 'Houseplants', 'name': 'Golden Pothos', 'sci': 'Epipremnum aureum'}, {'id': 3, 'cat': 'Houseplants', 'name': 'Snake Plant', 'sci': 'Dracaena trifasciata'}, {'id': 4, 'cat': 'Houseplants', 'name': 'ZZ Plant', 'sci': 'Zamioculcas zamiifolia'}, {'id': 5, 'cat': 'Houseplants', 'name': 'Fiddle Leaf Fig', 'sci': 'Ficus lyrata'}, {'id': 6, 'cat': 'Houseplants', 'name': 'Rubber Plant', 'sci': 'Ficus elastica'}, {'id': 7, 'cat': 'Houseplants', 'name': 'Pink Princess Philodendron', 'sci': "Philodendron 'Pink Princess'"}, {'id': 8, 'cat': 'Houseplants', 'name': 'Philodendron Gloriosum', 'sci': 'Philodendron gloriosum'}, {'id': 9, 'cat': 'Houseplants', 'name': 'Philodendron White Knight', 'sci': "Philodendron 'White Knight'"}, {'id': 10, 'cat': 'Houseplants', 'name': 'Philodendron Brasil', 'sci': "Philodendron 'Brasil'"}, {'id': 11, 'cat': 'Houseplants', 'name': 'Heartleaf Philodendron', 'sci': 'Philodendron hederaceum'}, {'id': 12, 'cat': 'Houseplants', 'name': 'Satin Pothos', 'sci': 'Scindapsus pictus'}, {'id': 13, 'cat': 'Houseplants', 'name': 'Spider Plant', 'sci': 'Chlorophytum comosum'}, {'id': 14, 'cat': 'Houseplants', 'name': 'Peace Lily', 'sci': 'Spathiphyllum wallisii'}, {'id': 15, 'cat': 'Houseplants', 'name': 'Chinese Evergreen', 'sci': 'Aglaonema commutatum'}, {'id': 16, 'cat': 'Houseplants', 'name': 'Dumb Cane', 'sci': 'Dieffenbachia seguine'}, {'id': 17, 'cat': 'Houseplants', 'name': 'Bird of Paradise', 'sci': 'Strelitzia nicolai'}, {'id': 18, 'cat': 'Houseplants', 'name': 'Majesty Palm', 'sci': 'Ravenea rivularis'}, {'id': 19, 'cat': 'Houseplants', 'name': 'Parlor Palm', 'sci': 'Chamaedorea elegans'}, {'id': 20, 'cat': 'Houseplants', 'name': 'Ponytail Palm', 'sci': 'Beaucarnea recurvata'}, {'id': 21, 'cat': 'Houseplants', 'name': 'Areca Palm', 'sci': 'Dypsis lutescens'}, {'id': 22, 'cat': 'Houseplants', 'name': 'Money Tree', 'sci': 'Pachira aquatica'}, {'id': 23, 'cat': 'Houseplants', 'name': 'Jade Plant', 'sci': 'Crassula ovata'}, {'id': 24, 'cat': 'Houseplants', 'name': 'Aloe Vera', 'sci': 'Aloe barbadensis miller'}, {'id': 25, 'cat': 'Houseplants', 'name': 'String of Pearls', 'sci': 'Senecio rowleyanus'}, {'id': 26, 'cat': 'Houseplants', 'name': "Burro's Tail", 'sci': 'Sedum morganianum'}, {'id': 27, 'cat': 'Houseplants', 'name': 'Echeveria', 'sci': 'Echeveria spp.'}, {'id': 28, 'cat': 'Houseplants', 'name': 'Haworthia', 'sci': 'Haworthiopsis attenuata'}, {'id': 29, 'cat': 'Houseplants', 'name': 'Christmas Cactus', 'sci': 'Schlumbergera bridgesii'}, {'id': 30, 'cat': 'Houseplants', 'name': 'Thanksgiving Cactus', 'sci': 'Schlumbergera truncata'}, {'id': 31, 'cat': 'Houseplants', 'name': 'Easter Cactus', 'sci': 'Schlumbergera gaertneri'}, {'id': 32, 'cat': 'Houseplants', 'name': 'Dragon Tree', 'sci': 'Dracaena marginata'}, {'id': 33, 'cat': 'Houseplants', 'name': 'Corn Plant', 'sci': 'Dracaena fragrans'}, {'id': 34, 'cat': 'Houseplants', 'name': 'Lucky Bamboo', 'sci': 'Dracaena sanderiana'}, {'id': 35, 'cat': 'Houseplants', 'name': 'Cast Iron Plant', 'sci': 'Aspidistra elatior'}, {'id': 36, 'cat': 'Houseplants', 'name': 'Prayer Plant', 'sci': 'Maranta leuconeura'}, {'id': 37, 'cat': 'Houseplants', 'name': 'Rattlesnake Plant', 'sci': 'Goeppertia insignis'}, {'id': 38, 'cat': 'Houseplants', 'name': 'Pinstripe Plant', 'sci': 'Goeppertia ornata'}, {'id': 39, 'cat': 'Houseplants', 'name': 'Calathea Orbifolia', 'sci': 'Goeppertia orbifolia'}, {'id': 40, 'cat': 'Houseplants', 'name': 'Triostar Stromanthe', 'sci': "Stromanthe thalia 'Triostar'"}, {'id': 41, 'cat': 'Houseplants', 'name': 'Nerve Plant', 'sci': 'Fittonia albivenis'}, {'id': 42, 'cat': 'Houseplants', 'name': 'Polka Dot Plant', 'sci': 'Hypoestes phyllostachya'}, {'id': 43, 'cat': 'Houseplants', 'name': 'Peperomia Obtusifolia', 'sci': 'Peperomia obtusifolia'}, {'id': 44, 'cat': 'Houseplants', 'name': 'Watermelon Peperomia', 'sci': 'Peperomia argyreia'}, {'id': 45, 'cat': 'Houseplants', 'name': 'String of Turtles', 'sci': 'Peperomia prostrata'}, {'id': 46, 'cat': 'Houseplants', 'name': 'Pilea', 'sci': 'Pilea peperomioides'}, {'id': 47, 'cat': 'Houseplants', 'name': 'Aluminum Plant', 'sci': 'Pilea cadierei'}, {'id': 48, 'cat': 'Houseplants', 'name': 'Begonia Maculata', 'sci': 'Begonia maculata'}, {'id': 49, 'cat': 'Houseplants', 'name': 'Rex Begonia', 'sci': 'Begonia rex-cultorum'}, {'id': 50, 'cat': 'Houseplants', 'name': 'Angel Wing Begonia', 'sci': 'Begonia coccinea'}, {'id': 51, 'cat': 'Houseplants', 'name': 'African Violet', 'sci': 'Streptocarpus ionanthus'}, {'id': 52, 'cat': 'Houseplants', 'name': 'Orchid (Moth)', 'sci': 'Phalaenopsis spp.'}, {'id': 53, 'cat': 'Houseplants', 'name': 'Bromeliad', 'sci': 'Bromeliaceae family'}, {'id': 54, 'cat': 'Houseplants', 'name': 'Air Plant', 'sci': 'Tillandsia spp.'}, {'id': 55, 'cat': 'Houseplants', 'name': 'Boston Fern', 'sci': 'Nephrolepis exaltata'}, {'id': 56, 'cat': 'Houseplants', 'name': 'Maidenhair Fern', 'sci': 'Adiantum raddianum'}, {'id': 57, 'cat': 'Houseplants', 'name': "Bird's Nest Fern", 'sci': 'Asplenium nidus'}, {'id': 58, 'cat': 'Houseplants', 'name': 'Staghorn Fern', 'sci': 'Platycerium bifurcatum'}, {'id': 59, 'cat': 'Houseplants', 'name': 'Asparagus Fern', 'sci': 'Asparagus setaceus'}, {'id': 60, 'cat': 'Houseplants', 'name': 'English Ivy', 'sci': 'Hedera helix'}, {'id': 61, 'cat': 'Houseplants', 'name': 'Grape Ivy', 'sci': 'Cissus rhombifolia'}, {'id': 62, 'cat': 'Houseplants', 'name': 'Hoya Carnosa', 'sci': 'Hoya carnosa'}, {'id': 63, 'cat': 'Houseplants', 'name': 'Hoya Kerrii', 'sci': 'Hoya kerrii'}, {'id': 64, 'cat': 'Houseplants', 'name': 'Schefflera (Umbrella Tree)', 'sci': 'Schefflera arboricola'}, {'id': 65, 'cat': 'Houseplants', 'name': 'Croton', 'sci': 'Codiaeum variegatum'}, {'id': 66, 'cat': 'Houseplants', 'name': 'Ti Plant', 'sci': 'Cordyline fruticosa'}, {'id': 67, 'cat': 'Houseplants', 'name': 'Yucca Cane', 'sci': 'Yucca elephantipes'}, {'id': 68, 'cat': 'Houseplants', 'name': 'Norfolk Island Pine', 'sci': 'Araucaria heterophylla'}, {'id': 69, 'cat': 'Houseplants', 'name': 'Weeping Fig', 'sci': 'Ficus benjamina'}, {'id': 70, 'cat': 'Houseplants', 'name': 'Ficus Audrey', 'sci': 'Ficus benghalensis'}, {'id': 71, 'cat': 'Houseplants', 'name': 'Olive Tree (Indoor)', 'sci': 'Olea europaea'}, {'id': 72, 'cat': 'Houseplants', 'name': 'Citrus Tree (Indoor)', 'sci': 'Citrus spp.'}, {'id': 73, 'cat': 'Houseplants', 'name': 'Banana Plant (Indoor)', 'sci': 'Musa acuminata'}, {'id': 74, 'cat': 'Houseplants', 'name': 'Coffee Plant', 'sci': 'Coffea arabica'}, {'id': 75, 'cat': 'Houseplants', 'name': 'Venus Flytrap', 'sci': 'Dionaea muscipula'}, {'id': 76, 'cat': 'Houseplants', 'name': 'Pitcher Plant', 'sci': 'Nepenthes spp.'}, {'id': 77, 'cat': 'Houseplants', 'name': 'Sensitive Plant', 'sci': 'Mimosa pudica'}, {'id': 78, 'cat': 'Houseplants', 'name': 'Purple Shamrock', 'sci': 'Oxalis triangularis'}, {'id': 79, 'cat': 'Houseplants', 'name': 'Kalanchoe', 'sci': 'Kalanchoe blossfeldiana'}, {'id': 80, 'cat': 'Houseplants', 'name': 'Panda Plant', 'sci': 'Kalanchoe tomentosa'}, {'id': 81, 'cat': 'Houseplants', 'name': 'Crown of Thorns', 'sci': 'Euphorbia milii'}, {'id': 82, 'cat': 'Houseplants', 'name': 'African Milk Tree', 'sci': 'Euphorbia trigona'}, {'id': 83, 'cat': 'Houseplants', 'name': 'Pencil Cactus', 'sci': 'Euphorbia tirucalli'}, {'id': 84, 'cat': 'Houseplants', 'name': 'Bunny Ear Cactus', 'sci': 'Opuntia microdasys'}, {'id': 85, 'cat': 'Houseplants', 'name': 'Fishbone Cactus', 'sci': 'Disocactus anguliger'}, {'id': 86, 'cat': 'Houseplants', 'name': 'Mistletoe Cactus', 'sci': 'Rhipsalis baccifera'}, {'id': 87, 'cat': 'Houseplants', 'name': 'Lithops (Living Stones)', 'sci': 'Lithops spp.'}, {'id': 88, 'cat': 'Houseplants', 'name': 'Split Rock', 'sci': 'Pleiospilos nelii'}, {'id': 89, 'cat': 'Houseplants', 'name': 'Baby Toes', 'sci': 'Fenestraria rhopalophylla'}, {'id': 90, 'cat': 'Houseplants', 'name': "Bear's Paw", 'sci': 'Cotyledon tomentosa'}, {'id': 91, 'cat': 'Houseplants', 'name': 'Moon Cactus', 'sci': 'Gymnocalycium mihanovichii'}, {'id': 92, 'cat': 'Houseplants', 'name': 'Old Man Cactus', 'sci': 'Cephalocereus senilis'}, {'id': 93, 'cat': 'Houseplants', 'name': 'Barrel Cactus', 'sci': 'Echinocactus grusonii'}, {'id': 94, 'cat': 'Houseplants', 'name': 'Sago Palm', 'sci': 'Cycas revoluta'}, {'id': 95, 'cat': 'Houseplants', 'name': 'Cardboard Palm', 'sci': 'Zamia furfuracea'}, {'id': 96, 'cat': 'Houseplants', 'name': 'Ming Aralia', 'sci': 'Polyscias fruticosa'}, {'id': 97, 'cat': 'Houseplants', 'name': 'False Aralia', 'sci': 'Plerandra elegantissima'}, {'id': 98, 'cat': 'Houseplants', 'name': 'Gold Dust Dracaena', 'sci': 'Dracaena surculosa'}, {'id': 99, 'cat': 'Houseplants', 'name': 'China Doll Plant', 'sci': 'Radermachera sinica'}, {'id': 100, 'cat': 'Houseplants', 'name': 'Creeping Fig', 'sci': 'Ficus pumila'}, {'id': 101, 'cat': 'Edibles', 'name': 'Tomato', 'sci': 'Solanum lycopersicum'}, {'id': 102, 'cat': 'Edibles', 'name': 'Cherry Tomato', 'sci': 'Solanum lycopersicum var. cerasiforme'}, {'id': 103, 'cat': 'Edibles', 'name': 'Beefsteak Tomato', 'sci': 'Solanum lycopersicum'}, {'id': 104, 'cat': 'Edibles', 'name': 'Heirloom Tomato', 'sci': 'Solanum lycopersicum'}, {'id': 105, 'cat': 'Edibles', 'name': 'Bell Pepper', 'sci': 'Capsicum annuum'}, {'id': 106, 'cat': 'Edibles', 'name': 'Jalapeño', 'sci': "Capsicum annuum 'Jalapeño'"}, {'id': 107, 'cat': 'Edibles', 'name': 'Habanero', 'sci': 'Capsicum chinense'}, {'id': 108, 'cat': 'Edibles', 'name': 'Cucumber', 'sci': 'Cucumis sativus'}, {'id': 109, 'cat': 'Edibles', 'name': 'Zucchini', 'sci': 'Cucurbita pepo'}, {'id': 110, 'cat': 'Edibles', 'name': 'Pumpkin', 'sci': 'Cucurbita pepo'}, {'id': 111, 'cat': 'Edibles', 'name': 'Butternut Squash', 'sci': 'Cucurbita moschata'}, {'id': 112, 'cat': 'Edibles', 'name': 'Watermelon', 'sci': 'Citrullus lanatus'}, {'id': 113, 'cat': 'Edibles', 'name': 'Cantaloupe', 'sci': 'Cucumis melo'}, {'id': 114, 'cat': 'Edibles', 'name': 'Honeydew Melon', 'sci': 'Cucumis melo'}, {'id': 115, 'cat': 'Edibles', 'name': 'Strawberry', 'sci': 'Fragaria × ananassa'}, {'id': 116, 'cat': 'Edibles', 'name': 'Blueberry', 'sci': 'Vaccinium corymbosum'}, {'id': 117, 'cat': 'Edibles', 'name': 'Raspberry', 'sci': 'Rubus idaeus'}, {'id': 118, 'cat': 'Edibles', 'name': 'Blackberry', 'sci': 'Rubus fruticosus'}, {'id': 119, 'cat': 'Edibles', 'name': 'Grape', 'sci': 'Vitis vinifera'}, {'id': 120, 'cat': 'Edibles', 'name': 'Fig (Edible)', 'sci': 'Ficus carica'}, {'id': 121, 'cat': 'Edibles', 'name': 'Apple', 'sci': 'Malus domestica'}, {'id': 122, 'cat': 'Edibles', 'name': 'Pear', 'sci': 'Pyrus communis'}, {'id': 123, 'cat': 'Edibles', 'name': 'Peach', 'sci': 'Prunus persica'}, {'id': 124, 'cat': 'Edibles', 'name': 'Cherry (Sweet)', 'sci': 'Prunus avium'}, {'id': 125, 'cat': 'Edibles', 'name': 'Plum', 'sci': 'Prunus domestica'}, {'id': 126, 'cat': 'Edibles', 'name': 'Lemon', 'sci': 'Citrus limon'}, {'id': 127, 'cat': 'Edibles', 'name': 'Lime', 'sci': 'Citrus aurantiifolia'}, {'id': 128, 'cat': 'Edibles', 'name': 'Orange', 'sci': 'Citrus × sinensis'}, {'id': 129, 'cat': 'Edibles', 'name': 'Avocado', 'sci': 'Persea americana'}, {'id': 130, 'cat': 'Edibles', 'name': 'Lettuce', 'sci': 'Lactuca sativa'}, {'id': 131, 'cat': 'Edibles', 'name': 'Spinach', 'sci': 'Spinacia oleracea'}, {'id': 132, 'cat': 'Edibles', 'name': 'Kale', 'sci': 'Brassica oleracea var. sabellica'}, {'id': 133, 'cat': 'Edibles', 'name': 'Swiss Chard', 'sci': 'Beta vulgaris subsp. vulgaris'}, {'id': 134, 'cat': 'Edibles', 'name': 'Arugula', 'sci': 'Eruca vesicaria'}, {'id': 135, 'cat': 'Edibles', 'name': 'Cabbage', 'sci': 'Brassica oleracea var. capitata'}, {'id': 136, 'cat': 'Edibles', 'name': 'Broccoli', 'sci': 'Brassica oleracea var. italica'}, {'id': 137, 'cat': 'Edibles', 'name': 'Cauliflower', 'sci': 'Brassica oleracea var. botrytis'}, {'id': 138, 'cat': 'Edibles', 'name': 'Brussels Sprouts', 'sci': 'Brassica oleracea var. gemmifera'}, {'id': 139, 'cat': 'Edibles', 'name': 'Carrot', 'sci': 'Daucus carota'}, {'id': 140, 'cat': 'Edibles', 'name': 'Radish', 'sci': 'Raphanus sativus'}, {'id': 141, 'cat': 'Edibles', 'name': 'Beet', 'sci': 'Beta vulgaris'}, {'id': 142, 'cat': 'Edibles', 'name': 'Onion', 'sci': 'Allium cepa'}, {'id': 143, 'cat': 'Edibles', 'name': 'Garlic', 'sci': 'Allium sativum'}, {'id': 144, 'cat': 'Edibles', 'name': 'Scallion (Green Onion)', 'sci': 'Allium fistulosum'}, {'id': 145, 'cat': 'Edibles', 'name': 'Leek', 'sci': 'Allium ampeloprasum'}, {'id': 146, 'cat': 'Edibles', 'name': 'Potato', 'sci': 'Solanum tuberosum'}, {'id': 147, 'cat': 'Edibles', 'name': 'Sweet Potato', 'sci': 'Ipomoea batatas'}, {'id': 148, 'cat': 'Edibles', 'name': 'Corn', 'sci': 'Zea mays'}, {'id': 149, 'cat': 'Edibles', 'name': 'Pea', 'sci': 'Pisum sativum'}, {'id': 150, 'cat': 'Edibles', 'name': 'Green Bean', 'sci': 'Phaseolus vulgaris'}, {'id': 151, 'cat': 'Edibles', 'name': 'Asparagus', 'sci': 'Asparagus officinalis'}, {'id': 152, 'cat': 'Edibles', 'name': 'Eggplant', 'sci': 'Solanum melongena'}, {'id': 153, 'cat': 'Edibles', 'name': 'Okra', 'sci': 'Abelmoschus esculentus'}, {'id': 154, 'cat': 'Edibles', 'name': 'Celery', 'sci': 'Apium graveolens'}, {'id': 155, 'cat': 'Edibles', 'name': 'Basil', 'sci': 'Ocimum basilicum'}, {'id': 156, 'cat': 'Edibles', 'name': 'Mint', 'sci': 'Mentha spp.'}, {'id': 157, 'cat': 'Edibles', 'name': 'Rosemary', 'sci': 'Salvia rosmarinus'}, {'id': 158, 'cat': 'Edibles', 'name': 'Thyme', 'sci': 'Thymus vulgaris'}, {'id': 159, 'cat': 'Edibles', 'name': 'Oregano', 'sci': 'Origanum vulgare'}, {'id': 160, 'cat': 'Edibles', 'name': 'Parsley', 'sci': 'Petroselinum crispum'}, {'id': 161, 'cat': 'Edibles', 'name': 'Cilantro', 'sci': 'Coriandrum sativum'}, {'id': 162, 'cat': 'Edibles', 'name': 'Dill', 'sci': 'Anethum graveolens'}, {'id': 163, 'cat': 'Edibles', 'name': 'Sage', 'sci': 'Salvia officinalis'}, {'id': 164, 'cat': 'Edibles', 'name': 'Lavender', 'sci': 'Lavandula spp.'}, {'id': 165, 'cat': 'Edibles', 'name': 'Chives', 'sci': 'Allium schoenoprasum'}, {'id': 166, 'cat': 'Edibles', 'name': 'Lemongrass', 'sci': 'Cymbopogon citratus'}, {'id': 167, 'cat': 'Edibles', 'name': 'Bay Leaf', 'sci': 'Laurus nobilis'}, {'id': 168, 'cat': 'Edibles', 'name': 'Ginger', 'sci': 'Zingiber officinale'}, {'id': 169, 'cat': 'Edibles', 'name': 'Turmeric', 'sci': 'Curcuma longa'}, {'id': 170, 'cat': 'Edibles', 'name': 'Rhubarb', 'sci': 'Rheum rhabarbarum'}, {'id': 171, 'cat': 'Flowers', 'name': 'Rose', 'sci': 'Rosa spp.'}, {'id': 172, 'cat': 'Flowers', 'name': 'Tulip', 'sci': 'Tulipa spp.'}, {'id': 173, 'cat': 'Flowers', 'name': 'Daffodil', 'sci': 'Narcissus spp.'}, {'id': 174, 'cat': 'Flowers', 'name': 'Sunflower', 'sci': 'Helianthus annuus'}, {'id': 175, 'cat': 'Flowers', 'name': 'Hydrangea', 'sci': 'Hydrangea macrophylla'}, {'id': 176, 'cat': 'Flowers', 'name': 'Peony', 'sci': 'Paeonia spp.'}, {'id': 177, 'cat': 'Flowers', 'name': 'Dahlia', 'sci': 'Dahlia spp.'}, {'id': 178, 'cat': 'Flowers', 'name': 'Lily', 'sci': 'Lilium spp.'}, {'id': 179, 'cat': 'Flowers', 'name': 'Daisy', 'sci': 'Bellis perennis'}, {'id': 180, 'cat': 'Flowers', 'name': 'Geranium', 'sci': 'Pelargonium spp.'}, {'id': 181, 'cat': 'Flowers', 'name': 'Petunia', 'sci': 'Petunia spp.'}, {'id': 182, 'cat': 'Flowers', 'name': 'Marigold', 'sci': 'Tagetes spp.'}, {'id': 183, 'cat': 'Flowers', 'name': 'Impatiens', 'sci': 'Impatiens walleriana'}, {'id': 184, 'cat': 'Flowers', 'name': 'Begonia (Outdoor)', 'sci': 'Begonia spp.'}, {'id': 185, 'cat': 'Flowers', 'name': 'Zinnia', 'sci': 'Zinnia elegans'}, {'id': 186, 'cat': 'Flowers', 'name': 'Cosmos', 'sci': 'Cosmos bipinnatus'}, {'id': 187, 'cat': 'Flowers', 'name': 'Pansy', 'sci': 'Viola tricolor var. hortensis'}, {'id': 188, 'cat': 'Flowers', 'name': 'Snapdragon', 'sci': 'Antirrhinum majus'}, {'id': 189, 'cat': 'Flowers', 'name': 'Chrysanthemum', 'sci': 'Chrysanthemum spp.'}, {'id': 190, 'cat': 'Flowers', 'name': 'Carnation', 'sci': 'Dianthus caryophyllus'}, {'id': 191, 'cat': 'Flowers', 'name': 'Lavender (Outdoor)', 'sci': 'Lavandula angustifolia'}, {'id': 192, 'cat': 'Flowers', 'name': 'Lilac', 'sci': 'Syringa vulgaris'}, {'id': 193, 'cat': 'Flowers', 'name': 'Azalea', 'sci': 'Rhododendron spp.'}, {'id': 194, 'cat': 'Flowers', 'name': 'Rhododendron', 'sci': 'Rhododendron spp.'}, {'id': 195, 'cat': 'Flowers', 'name': 'Camellia', 'sci': 'Camellia japonica'}, {'id': 196, 'cat': 'Flowers', 'name': 'Gardenia', 'sci': 'Gardenia jasminoides'}, {'id': 197, 'cat': 'Flowers', 'name': 'Hibiscus', 'sci': 'Hibiscus rosa-sinensis'}, {'id': 198, 'cat': 'Flowers', 'name': 'Bougainvillea', 'sci': 'Bougainvillea spectabilis'}, {'id': 199, 'cat': 'Flowers', 'name': 'Jasmine', 'sci': 'Jasminum officinale'}, {'id': 200, 'cat': 'Flowers', 'name': 'Wisteria', 'sci': 'Wisteria sinensis'}, {'id': 201, 'cat': 'Flowers', 'name': 'Clematis', 'sci': 'Clematis spp.'}, {'id': 202, 'cat': 'Flowers', 'name': 'Morning Glory', 'sci': 'Ipomoea purpurea'}, {'id': 203, 'cat': 'Flowers', 'name': 'Coneflower', 'sci': 'Echinacea purpurea'}, {'id': 204, 'cat': 'Flowers', 'name': 'Black-Eyed Susan', 'sci': 'Rudbeckia hirta'}, {'id': 205, 'cat': 'Flowers', 'name': 'Shasta Daisy', 'sci': 'Leucanthemum × superbum'}, {'id': 206, 'cat': 'Flowers', 'name': 'Hosta', 'sci': 'Hosta spp.'}, {'id': 207, 'cat': 'Flowers', 'name': 'Bleeding Heart', 'sci': 'Lamprocapnos spectabilis'}, {'id': 208, 'cat': 'Flowers', 'name': 'Astilbe', 'sci': 'Astilbe spp.'}, {'id': 209, 'cat': 'Flowers', 'name': 'Coral Bells', 'sci': 'Heuchera spp.'}, {'id': 210, 'cat': 'Flowers', 'name': 'Foxglove', 'sci': 'Digitalis purpurea'}, {'id': 211, 'cat': 'Flowers', 'name': 'Delphinium', 'sci': 'Delphinium elatum'}, {'id': 212, 'cat': 'Flowers', 'name': 'Lupine', 'sci': 'Lupinus spp.'}, {'id': 213, 'cat': 'Flowers', 'name': 'Columbine', 'sci': 'Aquilegia spp.'}, {'id': 214, 'cat': 'Flowers', 'name': 'Poppy', 'sci': 'Papaver rhoeas'}, {'id': 215, 'cat': 'Flowers', 'name': 'Ranunculus', 'sci': 'Ranunculus asiaticus'}, {'id': 216, 'cat': 'Flowers', 'name': 'Anemone', 'sci': 'Anemone coronaria'}, {'id': 217, 'cat': 'Flowers', 'name': 'Gladiolus', 'sci': 'Gladiolus spp.'}, {'id': 218, 'cat': 'Flowers', 'name': 'Calla Lily', 'sci': 'Zantedeschia aethiopica'}, {'id': 219, 'cat': 'Flowers', 'name': 'Freesia', 'sci': 'Freesia spp.'}, {'id': 220, 'cat': 'Flowers', 'name': 'Amaryllis', 'sci': 'Hippeastrum spp.'}, {'id': 221, 'cat': 'Trees & Shrubs', 'name': 'Oak Tree', 'sci': 'Quercus spp.'}, {'id': 222, 'cat': 'Trees & Shrubs', 'name': 'Maple Tree', 'sci': 'Acer spp.'}, {'id': 223, 'cat': 'Trees & Shrubs', 'name': 'Pine Tree', 'sci': 'Pinus spp.'}, {'id': 224, 'cat': 'Trees & Shrubs', 'name': 'Birch Tree', 'sci': 'Betula spp.'}, {'id': 225, 'cat': 'Trees & Shrubs', 'name': 'Willow Tree', 'sci': 'Salix spp.'}, {'id': 226, 'cat': 'Trees & Shrubs', 'name': 'Magnolia Tree', 'sci': 'Magnolia grandiflora'}, {'id': 227, 'cat': 'Trees & Shrubs', 'name': 'Dogwood Tree', 'sci': 'Cornus florida'}, {'id': 228, 'cat': 'Trees & Shrubs', 'name': 'Redbud Tree', 'sci': 'Cercis canadensis'}, {'id': 229, 'cat': 'Trees & Shrubs', 'name': 'Cherry Blossom Tree', 'sci': 'Prunus serrulata'}, {'id': 230, 'cat': 'Trees & Shrubs', 'name': 'Japanese Maple', 'sci': 'Acer palmatum'}, {'id': 231, 'cat': 'Trees & Shrubs', 'name': 'Crape Myrtle', 'sci': 'Lagerstroemia indica'}, {'id': 232, 'cat': 'Trees & Shrubs', 'name': 'Boxwood', 'sci': 'Buxus sempervirens'}, {'id': 233, 'cat': 'Trees & Shrubs', 'name': 'Holly', 'sci': 'Ilex aquifolium'}, {'id': 234, 'cat': 'Trees & Shrubs', 'name': 'Juniper', 'sci': 'Juniperus spp.'}, {'id': 235, 'cat': 'Trees & Shrubs', 'name': 'Arborvitae', 'sci': 'Thuja occidentalis'}, {'id': 236, 'cat': 'Trees & Shrubs', 'name': 'Spruce', 'sci': 'Picea spp.'}, {'id': 237, 'cat': 'Trees & Shrubs', 'name': 'Fir Tree', 'sci': 'Abies spp.'}, {'id': 238, 'cat': 'Trees & Shrubs', 'name': 'Cedar Tree', 'sci': 'Cedrus spp.'}, {'id': 239, 'cat': 'Trees & Shrubs', 'name': 'Cypress Tree', 'sci': 'Cupressus spp.'}, {'id': 240, 'cat': 'Trees & Shrubs', 'name': 'Palm Tree (Outdoor)', 'sci': 'Arecaceae family'}, {'id': 241, 'cat': 'Trees & Shrubs', 'name': 'Eucalyptus', 'sci': 'Eucalyptus spp.'}, {'id': 242, 'cat': 'Trees & Shrubs', 'name': 'Ginkgo Biloba', 'sci': 'Ginkgo biloba'}, {'id': 243, 'cat': 'Trees & Shrubs', 'name': 'Aspen', 'sci': 'Populus tremuloides'}, {'id': 244, 'cat': 'Trees & Shrubs', 'name': 'Elm Tree', 'sci': 'Ulmus spp.'}, {'id': 245, 'cat': 'Trees & Shrubs', 'name': 'Ash Tree', 'sci': 'Fraxinus spp.'}, {'id': 246, 'cat': 'Trees & Shrubs', 'name': 'Poplar Tree', 'sci': 'Populus spp.'}, {'id': 247, 'cat': 'Trees & Shrubs', 'name': 'Sycamore Tree', 'sci': 'Platanus occidentalis'}, {'id': 248, 'cat': 'Trees & Shrubs', 'name': 'Walnut Tree', 'sci': 'Juglans spp.'}, {'id': 249, 'cat': 'Trees & Shrubs', 'name': 'Hickory Tree', 'sci': 'Carya spp.'}, {'id': 250, 'cat': 'Trees & Shrubs', 'name': 'Sweetgum Tree', 'sci': 'Liquidambar styraciflua'}, {'id': 251, 'cat': 'Trees & Shrubs', 'name': 'Forsythia', 'sci': 'Forsythia x intermedia'}, {'id': 252, 'cat': 'Trees & Shrubs', 'name': 'Weigela', 'sci': 'Weigela florida'}, {'id': 253, 'cat': 'Trees & Shrubs', 'name': 'Spirea', 'sci': 'Spiraea spp.'}, {'id': 254, 'cat': 'Trees & Shrubs', 'name': 'Barberry', 'sci': 'Berberis thunbergii'}, {'id': 255, 'cat': 'Trees & Shrubs', 'name': 'Euonymus', 'sci': 'Euonymus fortunei'}, {'id': 256, 'cat': 'Trees & Shrubs', 'name': 'Viburnum', 'sci': 'Viburnum spp.'}, {'id': 257, 'cat': 'Trees & Shrubs', 'name': 'Butterfly Bush', 'sci': 'Buddleja davidii'}, {'id': 258, 'cat': 'Trees & Shrubs', 'name': 'Smoke Bush', 'sci': 'Cotinus coggygria'}, {'id': 259, 'cat': 'Trees & Shrubs', 'name': 'Burning Bush', 'sci': 'Euonymus alatus'}, {'id': 260, 'cat': 'Trees & Shrubs', 'name': 'Privet', 'sci': 'Ligustrum spp.'}, {'id': 261, 'cat': 'Weeds & Wild', 'name': 'Dandelion', 'sci': 'Taraxacum officinale'}, {'id': 262, 'cat': 'Weeds & Wild', 'name': 'Crabgrass', 'sci': 'Digitaria spp.'}, {'id': 263, 'cat': 'Weeds & Wild', 'name': 'Clover', 'sci': 'Trifolium spp.'}, {'id': 264, 'cat': 'Weeds & Wild', 'name': 'Creeping Charlie', 'sci': 'Glechoma hederacea'}, {'id': 265, 'cat': 'Weeds & Wild', 'name': 'Chickweed', 'sci': 'Stellaria media'}, {'id': 266, 'cat': 'Weeds & Wild', 'name': 'Purslane', 'sci': 'Portulaca oleracea'}, {'id': 267, 'cat': 'Weeds & Wild', 'name': 'Plantain (Weed)', 'sci': 'Plantago major'}, {'id': 268, 'cat': 'Weeds & Wild', 'name': 'Thistle', 'sci': 'Cirsium spp.'}, {'id': 269, 'cat': 'Weeds & Wild', 'name': 'Bindweed', 'sci': 'Convolvulus arvensis'}, {'id': 270, 'cat': 'Weeds & Wild', 'name': 'Nutsedge', 'sci': 'Cyperus esculentus'}, {'id': 271, 'cat': 'Weeds & Wild', 'name': 'Oxalis (Weed)', 'sci': 'Oxalis stricta'}, {'id': 272, 'cat': 'Weeds & Wild', 'name': 'Spurge', 'sci': 'Euphorbia maculata'}, {'id': 273, 'cat': 'Weeds & Wild', 'name': "Lamb's Quarters", 'sci': 'Chenopodium album'}, {'id': 274, 'cat': 'Weeds & Wild', 'name': 'Pigweed', 'sci': 'Amaranthus retroflexus'}, {'id': 275, 'cat': 'Weeds & Wild', 'name': 'Ragweed', 'sci': 'Ambrosia artemisiifolia'}, {'id': 276, 'cat': 'Weeds & Wild', 'name': 'Goldenrod', 'sci': 'Solidago spp.'}, {'id': 277, 'cat': 'Weeds & Wild', 'name': 'Canada Thistle', 'sci': 'Cirsium arvense'}, {'id': 278, 'cat': 'Weeds & Wild', 'name': 'Bull Thistle', 'sci': 'Cirsium vulgare'}, {'id': 279, 'cat': 'Weeds & Wild', 'name': 'Poison Ivy', 'sci': 'Toxicodendron radicans'}, {'id': 280, 'cat': 'Weeds & Wild', 'name': 'Poison Oak', 'sci': 'Toxicodendron diversilobum'}, {'id': 281, 'cat': 'Weeds & Wild', 'name': 'Poison Sumac', 'sci': 'Toxicodendron vernix'}, {'id': 282, 'cat': 'Weeds & Wild', 'name': 'Wild Parsnip', 'sci': 'Pastinaca sativa'}, {'id': 283, 'cat': 'Weeds & Wild', 'name': 'Giant Hogweed', 'sci': 'Heracleum mantegazzianum'}, {'id': 284, 'cat': 'Weeds & Wild', 'name': 'Pokeweed', 'sci': 'Phytolacca americana'}, {'id': 285, 'cat': 'Weeds & Wild', 'name': 'Bittersweet Nightshade', 'sci': 'Solanum dulcamara'}, {'id': 286, 'cat': 'Weeds & Wild', 'name': 'Jimsonweed', 'sci': 'Datura stramonium'}, {'id': 287, 'cat': 'Weeds & Wild', 'name': 'Virginia Creeper', 'sci': 'Parthenocissus quinquefolia'}, {'id': 288, 'cat': 'Weeds & Wild', 'name': 'Kudzu', 'sci': 'Pueraria montana'}, {'id': 289, 'cat': 'Weeds & Wild', 'name': 'Japanese Knotweed', 'sci': 'Reynoutria japonica'}, {'id': 290, 'cat': 'Weeds & Wild', 'name': 'English Ivy (Wild)', 'sci': 'Hedera helix'}, {'id': 291, 'cat': 'Weeds & Wild', 'name': 'Bamboo (Invasive)', 'sci': 'Phyllostachys spp.'}, {'id': 292, 'cat': 'Weeds & Wild', 'name': 'Morning Glory (Wild)', 'sci': 'Ipomoea spp.'}, {'id': 293, 'cat': 'Weeds & Wild', 'name': 'Wild Violet', 'sci': 'Viola sororia'}, {'id': 294, 'cat': 'Weeds & Wild', 'name': 'Moss', 'sci': 'Bryophyta division'}, {'id': 295, 'cat': 'Weeds & Wild', 'name': 'Algae', 'sci': 'Algae group'}, {'id': 296, 'cat': 'Weeds & Wild', 'name': 'Lichen', 'sci': 'Lichen group'}, {'id': 297, 'cat': 'Weeds & Wild', 'name': 'Mushroom (Lawn)', 'sci': 'Fungi kingdom'}, {'id': 298, 'cat': 'Weeds & Wild', 'name': 'Milkweed', 'sci': 'Asclepias syriaca'}, {'id': 299, 'cat': 'Weeds & Wild', 'name': 'Stinging Nettle', 'sci': 'Urtica dioica'}, {'id': 300, 'cat': 'Weeds & Wild', 'name': 'Horsetail', 'sci': 'Equisetum arvense'}
+        ],
+        // 病虫害数据 (300条，完全来自您的文件)
+        // 注意：您的文件中没有“Scientific Name”列，因此 sci 字段为空
+        pests: [
+            {'id': 1, 'cat': 'Disease', 'name': 'Powdery Mildew', 'sci': ''}, {'id': 2, 'cat': 'Pest', 'name': 'Aphids', 'sci': ''}, {'id': 3, 'cat': 'Pest', 'name': 'Spider Mites', 'sci': ''}, {'id': 4, 'cat': 'Disease', 'name': 'Leaf Spot', 'sci': ''}, {'id': 5, 'cat': 'Disease', 'name': 'Root Rot', 'sci': ''}, {'id': 6, 'cat': 'Disease', 'name': 'Fungal Blight', 'sci': ''}, {'id': 7, 'cat': 'Pest', 'name': 'Scale Insects', 'sci': ''}, {'id': 8, 'cat': 'Pest', 'name': 'Whiteflies', 'sci': ''}, {'id': 9, 'cat': 'Pest', 'name': 'Mealybugs', 'sci': ''}, {'id': 10, 'cat': 'Disease', 'name': 'Rust', 'sci': ''}, {'id': 11, 'cat': 'Disease', 'name': 'Black Spot', 'sci': ''}, {'id': 12, 'cat': 'Disease', 'name': 'Downy Mildew', 'sci': ''}, {'id': 13, 'cat': 'Disease', 'name': 'Bacterial Blight', 'sci': ''}, {'id': 14, 'cat': 'Pest', 'name': 'Thrips', 'sci': ''}, {'id': 15, 'cat': 'Disease', 'name': 'Anthracnose', 'sci': ''}, {'id': 16, 'cat': 'Pest', 'name': 'Caterpillars', 'sci': ''}, {'id': 17, 'cat': 'Pest', 'name': 'Japanese Beetles', 'sci': ''}, {'id': 18, 'cat': 'Disease', 'name': 'Brown Patch', 'sci': ''}, {'id': 19, 'cat': 'Disease', 'name': 'Fusarium Wilt', 'sci': ''}, {'id': 20, 'cat': 'Disease', 'name': 'Verticillium Wilt', 'sci': ''}, {'id': 21, 'cat': 'Disease', 'name': 'Botrytis / Gray Mold', 'sci': ''}, {'id': 22, 'cat': 'Disease', 'name': 'Mosaic Virus', 'sci': ''}, {'id': 23, 'cat': 'Disease', 'name': 'Leaf Curl', 'sci': ''}, {'id': 24, 'cat': 'Pest', 'name': 'Fungus Gnats', 'sci': ''}, {'id': 25, 'cat': 'Pest', 'name': 'Slugs', 'sci': ''}, {'id': 26, 'cat': 'Pest', 'name': 'Snails', 'sci': ''}, {'id': 27, 'cat': 'Pest', 'name': 'Armyworms', 'sci': ''}, {'id': 28, 'cat': 'Pest', 'name': 'Cutworms', 'sci': ''}, {'id': 29, 'cat': 'Pest', 'name': 'Leaf Miners', 'sci': ''}, {'id': 30, 'cat': 'Disease', 'name': 'Fire Blight', 'sci': ''}, {'id': 31, 'cat': 'Disease', 'name': 'Cedar Apple Rust', 'sci': ''}, {'id': 32, 'cat': 'Disease', 'name': 'Canker', 'sci': ''}, {'id': 33, 'cat': 'Disease', 'name': 'Citrus Greening', 'sci': ''}, {'id': 34, 'cat': 'Disease', 'name': 'Sooty Mold', 'sci': ''}, {'id': 35, 'cat': 'Disease', 'name': 'Bacterial Leaf Spot', 'sci': ''}, {'id': 36, 'cat': 'Disease', 'name': 'Phytophthora Rot', 'sci': ''}, {'id': 37, 'cat': 'Disease', 'name': 'Stem Rot', 'sci': ''}, {'id': 38, 'cat': 'Disease', 'name': 'Crown Rot', 'sci': ''}, {'id': 39, 'cat': 'Disease', 'name': 'Damping Off', 'sci': ''}, {'id': 40, 'cat': 'Disease', 'name': 'Southern Blight', 'sci': ''}, {'id': 41, 'cat': 'Disease', 'name': 'Early Blight (Tomato)', 'sci': ''}, {'id': 42, 'cat': 'Disease', 'name': 'Late Blight (Tomato)', 'sci': ''}, {'id': 43, 'cat': 'Disease', 'name': 'Septoria Leaf Spot', 'sci': ''}, {'id': 44, 'cat': 'Disease', 'name': 'Clubroot', 'sci': ''}, {'id': 45, 'cat': 'Disease', 'name': 'Black Rot', 'sci': ''}, {'id': 46, 'cat': 'Pest', 'name': 'Earwigs', 'sci': ''}, {'id': 47, 'cat': 'Pest', 'name': 'Grasshoppers', 'sci': ''}, {'id': 48, 'cat': 'Pest', 'name': 'Colorado Potato Beetle', 'sci': ''}, {'id': 49, 'cat': 'Pest', 'name': 'Flea Beetles', 'sci': ''}, {'id': 50, 'cat': 'Pest', 'name': 'Squash Bugs', 'sci': ''}, {'id': 51, 'cat': 'Pest', 'name': 'Stink Bugs', 'sci': ''}, {'id': 52, 'cat': 'Pest', 'name': 'Cucumber Beetles', 'sci': ''}, {'id': 53, 'cat': 'Pest', 'name': 'Tomato Hornworms', 'sci': ''}, {'id': 54, 'cat': 'Pest', 'name': 'Cabbage Loopers', 'sci': ''}, {'id': 55, 'cat': 'Pest', 'name': 'Imported Cabbageworm', 'sci': ''}, {'id': 56, 'cat': 'Pest', 'name': 'Corn Earworm', 'sci': ''}, {'id': 57, 'cat': 'Pest', 'name': 'Squash Vine Borer', 'sci': ''}, {'id': 58, 'cat': 'Pest', 'name': 'Wireworms', 'sci': ''}, {'id': 59, 'cat': 'Pest', 'name': 'Root Maggots', 'sci': ''}, {'id': 60, 'cat': 'Pest', 'name': 'Leafhoppers', 'sci': ''}, {'id': 61, 'cat': 'Pest', 'name': 'Psyllids', 'sci': ''}, {'id': 62, 'cat': 'Pest', 'name': 'Sawfly Larvae', 'sci': ''}, {'id': 63, 'cat': 'Pest', 'name': 'Bagworms', 'sci': ''}, {'id': 64, 'cat': 'Pest', 'name': 'Tent Caterpillars', 'sci': ''}, {'id': 65, 'cat': 'Pest', 'name': 'Webworms', 'sci': ''}, {'id': 66, 'cat': 'Pest', 'name': 'Gypsy Moth Larvae', 'sci': ''}, {'id': 67, 'cat': 'Pest', 'name': 'Codling Moth', 'sci': ''}, {'id': 68, 'cat': 'Pest', 'name': 'Plum Curculio', 'sci': ''}, {'id': 69, 'cat': 'Pest', 'name': 'Apple Maggot', 'sci': ''}, {'id': 70, 'cat': 'Pest', 'name': 'Cherry Fruit Fly', 'sci': ''}, {'id': 71, 'cat': 'Pest', 'name': 'Peach Tree Borer', 'sci': ''}, {'id': 72, 'cat': 'Pest', 'name': 'Raspberry Cane Borer', 'sci': ''}, {'id': 73, 'cat': 'Pest', 'name': 'Strawberry Weevil', 'sci': ''}, {'id': 74, 'cat': 'Pest', 'name': 'Spotted Wing Drosophila', 'sci': ''}, {'id': 75, 'cat': 'Pest', 'name': 'Vine Weevil', 'sci': ''}, {'id': 76, 'cat': 'Pest', 'name': 'White Grubs', 'sci': ''}, {'id': 77, 'cat': 'Pest', 'name': 'Billbugs', 'sci': ''}, {'id': 78, 'cat': 'Pest', 'name': 'Chinch Bugs', 'sci': ''}, {'id': 79, 'cat': 'Pest', 'name': 'Sod Webworms', 'sci': ''}, {'id': 80, 'cat': 'Pest', 'name': 'Mole Crickets', 'sci': ''}, {'id': 81, 'cat': 'Pest', 'name': 'Ants (Farming Aphids)', 'sci': ''}, {'id': 82, 'cat': 'Pest', 'name': 'Termites', 'sci': ''}, {'id': 83, 'cat': 'Pest', 'name': 'Carpenter Ants', 'sci': ''}, {'id': 84, 'cat': 'Pest', 'name': 'Boxelder Bugs', 'sci': ''}, {'id': 85, 'cat': 'Pest', 'name': 'Asian Lady Beetles', 'sci': ''}, {'id': 86, 'cat': 'Pest', 'name': 'Brown Marmorated Stink Bug', 'sci': ''}, {'id': 87, 'cat': 'Pest', 'name': 'Spotted Lanternfly', 'sci': ''}, {'id': 88, 'cat': 'Pest', 'name': 'Emerald Ash Borer', 'sci': ''}, {'id': 89, 'cat': 'Pest', 'name': 'Asian Longhorned Beetle', 'sci': ''}, {'id': 90, 'cat': 'Pest', 'name': 'Elm Leaf Beetle', 'sci': ''}, {'id': 91, 'cat': 'Pest', 'name': 'Viburnum Leaf Beetle', 'sci': ''}, {'id': 92, 'cat': 'Pest', 'name': 'Lily Leaf Beetle', 'sci': ''}, {'id': 93, 'cat': 'Pest', 'name': 'Rose Chafer', 'sci': ''}, {'id': 94, 'cat': 'Pest', 'name': 'Japanese Maple Scale', 'sci': ''}, {'id': 95, 'cat': 'Pest', 'name': 'Euonymus Scale', 'sci': ''}, {'id': 96, 'cat': 'Pest', 'name': 'Oystershell Scale', 'sci': ''}, {'id': 97, 'cat': 'Pest', 'name': 'San Jose Scale', 'sci': ''}, {'id': 98, 'cat': 'Pest', 'name': 'Cottony Cushion Scale', 'sci': ''}, {'id': 99, 'cat': 'Pest', 'name': 'Magnolia Scale', 'sci': ''}, {'id': 100, 'cat': 'Pest', 'name': 'Tuliptree Scale', 'sci': ''}, {'id': 101, 'cat': 'Pest', 'name': 'Pine Needle Scale', 'sci': ''}, {'id': 102, 'cat': 'Pest', 'name': 'Spruce Spider Mite', 'sci': ''}, {'id': 103, 'cat': 'Pest', 'name': 'Southern Red Mite', 'sci': ''}, {'id': 104, 'cat': 'Pest', 'name': 'Two-Spotted Spider Mite', 'sci': ''}, {'id': 105, 'cat': 'Pest', 'name': 'Cyclamen Mite', 'sci': ''}, {'id': 106, 'cat': 'Pest', 'name': 'Broad Mite', 'sci': ''}, {'id': 107, 'cat': 'Pest', 'name': 'Russet Mite', 'sci': ''}, {'id': 108, 'cat': 'Pest', 'name': 'Gall Mites', 'sci': ''}, {'id': 109, 'cat': 'Pest', 'name': 'Gall Wasps', 'sci': ''}, {'id': 110, 'cat': 'Pest', 'name': 'Gall Midges', 'sci': ''}, {'id': 111, 'cat': 'Pest', 'name': 'Nematodes (Root Knot)', 'sci': ''}, {'id': 112, 'cat': 'Pest', 'name': 'Nematodes (Foliar)', 'sci': ''}, {'id': 113, 'cat': 'Pest', 'name': 'Nematodes (Bulb/Stem)', 'sci': ''}, {'id': 114, 'cat': 'Pest', 'name': 'Sowbugs', 'sci': ''}, {'id': 115, 'cat': 'Pest', 'name': 'Pillbugs', 'sci': ''}, {'id': 116, 'cat': 'Pest', 'name': 'Millipedes', 'sci': ''}, {'id': 117, 'cat': 'Pest', 'name': 'Centipedes', 'sci': ''}, {'id': 118, 'cat': 'Pest', 'name': 'Springtails', 'sci': ''}, {'id': 119, 'cat': 'Pest', 'name': 'Silverfish', 'sci': ''}, {'id': 120, 'cat': 'Pest', 'name': 'Firebrats', 'sci': ''}, {'id': 121, 'cat': 'Pest', 'name': 'Cockroaches', 'sci': ''}, {'id': 122, 'cat': 'Pest', 'name': 'Crickets', 'sci': ''}, {'id': 123, 'cat': 'Pest', 'name': 'Cicadas', 'sci': ''}, {'id': 124, 'cat': 'Pest', 'name': 'June Beetles', 'sci': ''}, {'id': 125, 'cat': 'Pest', 'name': 'Click Beetles', 'sci': ''}, {'id': 126, 'cat': 'Pest', 'name': 'Bark Beetles', 'sci': ''}, {'id': 127, 'cat': 'Pest', 'name': 'Ambrosia Beetles', 'sci': ''}, {'id': 128, 'cat': 'Pest', 'name': 'Wood Borers', 'sci': ''}, {'id': 129, 'cat': 'Pest', 'name': 'Weevils (Stored Product)', 'sci': ''}, {'id': 130, 'cat': 'Pest', 'name': 'Grain Moths', 'sci': ''}, {'id': 131, 'cat': 'Pest', 'name': 'Flour Beetles', 'sci': ''}, {'id': 132, 'cat': 'Pest', 'name': 'Fruit Flies (Household)', 'sci': ''}, {'id': 133, 'cat': 'Pest', 'name': 'Drain Flies', 'sci': ''}, {'id': 134, 'cat': 'Pest', 'name': 'House Flies', 'sci': ''}, {'id': 135, 'cat': 'Pest', 'name': 'Cluster Flies', 'sci': ''}, {'id': 136, 'cat': 'Pest', 'name': 'Blow Flies', 'sci': ''}, {'id': 137, 'cat': 'Pest', 'name': 'Mosquitoes', 'sci': ''}, {'id': 138, 'cat': 'Pest', 'name': 'Ticks', 'sci': ''}, {'id': 139, 'cat': 'Pest', 'name': 'Fleas', 'sci': ''}, {'id': 140, 'cat': 'Pest', 'name': 'Bed Bugs', 'sci': ''}, {'id': 141, 'cat': 'Pest', 'name': 'Wasps', 'sci': ''}, {'id': 142, 'cat': 'Pest', 'name': 'Hornets', 'sci': ''}, {'id': 143, 'cat': 'Pest', 'name': 'Yellowjackets', 'sci': ''}, {'id': 144, 'cat': 'Pest', 'name': 'Carpenter Bees', 'sci': ''}, {'id': 145, 'cat': 'Pest', 'name': 'Bumble Bees', 'sci': ''}, {'id': 146, 'cat': 'Pest', 'name': 'Honey Bees', 'sci': ''}, {'id': 147, 'cat': 'Pest', 'name': 'Solitary Bees', 'sci': ''}, {'id': 148, 'cat': 'Pest', 'name': 'Spiders', 'sci': ''}, {'id': 149, 'cat': 'Pest', 'name': 'Scorpions', 'sci': ''}, {'id': 150, 'cat': 'Pest', 'name': 'Daddy Longlegs', 'sci': ''}, {'id': 151, 'cat': 'Disease', 'name': 'Apple Scab', 'sci': ''}, {'id': 152, 'cat': 'Disease', 'name': 'Pear Scab', 'sci': ''}, {'id': 153, 'cat': 'Disease', 'name': 'Peach Scab', 'sci': ''}, {'id': 154, 'cat': 'Disease', 'name': 'Pecan Scab', 'sci': ''}, {'id': 155, 'cat': 'Disease', 'name': 'Black Knot', 'sci': ''}, {'id': 156, 'cat': 'Disease', 'name': 'Brown Rot (Fruit)', 'sci': ''}, {'id': 157, 'cat': 'Disease', 'name': 'Bitter Rot', 'sci': ''}, {'id': 158, 'cat': 'Disease', 'name': 'Flyspeck', 'sci': ''}, {'id': 159, 'cat': 'Disease', 'name': 'Sooty Blotch', 'sci': ''}, {'id': 160, 'cat': 'Disease', 'name': 'Blossom End Rot', 'sci': ''}, {'id': 161, 'cat': 'Disease', 'name': 'Sunscald', 'sci': ''}, {'id': 162, 'cat': 'Disease', 'name': 'Catfacing', 'sci': ''}, {'id': 163, 'cat': 'Disease', 'name': 'Growth Cracks', 'sci': ''}, {'id': 164, 'cat': 'Disease', 'name': 'Nutrient Deficiency (N)', 'sci': ''}, {'id': 165, 'cat': 'Disease', 'name': 'Nutrient Deficiency (P)', 'sci': ''}, {'id': 166, 'cat': 'Disease', 'name': 'Nutrient Deficiency (K)', 'sci': ''}, {'id': 167, 'cat': 'Disease', 'name': 'Nutrient Deficiency (Ca)', 'sci': ''}, {'id': 168, 'cat': 'Disease', 'name': 'Nutrient Deficiency (Mg)', 'sci': ''}, {'id': 169, 'cat': 'Disease', 'name': 'Nutrient Deficiency (Fe)', 'sci': ''}, {'id': 170, 'cat': 'Disease', 'name': 'Salt Injury', 'sci': ''}, {'id': 171, 'cat': 'Disease', 'name': 'Herbicide Injury', 'sci': ''}, {'id': 172, 'cat': 'Disease', 'name': 'Frost Injury', 'sci': ''}, {'id': 173, 'cat': 'Disease', 'name': 'Wind Burn', 'sci': ''}, {'id': 174, 'cat': 'Disease', 'name': 'Waterlogging', 'sci': ''}, {'id': 175, 'cat': 'Disease', 'name': 'Drought Stress', 'sci': ''}, {'id': 176, 'cat': 'Disease', 'name': 'Algal Leaf Spot', 'sci': ''}, {'id': 177, 'cat': 'Disease', 'name': 'Lichens', 'sci': ''}, {'id': 178, 'cat': 'Disease', 'name': 'Moss', 'sci': ''}, {'id': 179, 'cat': 'Disease', 'name': 'Dodder', 'sci': ''}, {'id': 180, 'cat': 'Disease', 'name': 'Mistletoe', 'sci': ''}, {'id': 181, 'cat': 'Disease', 'name': 'Witches Broom', 'sci': ''}, {'id': 182, 'cat': 'Disease', 'name': 'Galls', 'sci': ''}, {'id': 183, 'cat': 'Disease', 'name': 'Burls', 'sci': ''}, {'id': 184, 'cat': 'Disease', 'name': 'Fasciated Growth', 'sci': ''}, {'id': 185, 'cat': 'Disease', 'name': 'Chlorosis', 'sci': ''}, {'id': 186, 'cat': 'Disease', 'name': 'Necrosis', 'sci': ''}, {'id': 187, 'cat': 'Disease', 'name': 'Wilt', 'sci': ''}, {'id': 188, 'cat': 'Disease', 'name': 'Stunting', 'sci': ''}, {'id': 189, 'cat': 'Disease', 'name': 'Defoliation', 'sci': ''}, {'id': 190, 'cat': 'Disease', 'name': 'Dieback', 'sci': ''}, {'id': 191, 'cat': 'Disease', 'name': 'Bleeding Canker', 'sci': ''}, {'id': 192, 'cat': 'Disease', 'name': 'Slime Flux', 'sci': ''}, {'id': 193, 'cat': 'Disease', 'name': 'Wetwood', 'sci': ''}, {'id': 194, 'cat': 'Disease', 'name': 'Wood Decay', 'sci': ''}, {'id': 195, 'cat': 'Disease', 'name': 'Heart Rot', 'sci': ''}, {'id': 196, 'cat': 'Disease', 'name': 'Butt Rot', 'sci': ''}, {'id': 197, 'cat': 'Disease', 'name': 'Root Rot', 'sci': ''}, {'id': 198, 'cat': 'Disease', 'name': 'Armillaria Root Rot', 'sci': ''}, {'id': 199, 'cat': 'Disease', 'name': 'Phytophthora Root Rot', 'sci': ''}, {'id': 200, 'cat': 'Disease', 'name': 'Pythium Root Rot', 'sci': ''}, {'id': 201, 'cat': 'Disease', 'name': 'Rhizoctonia Root Rot', 'sci': ''}, {'id': 202, 'cat': 'Disease', 'name': 'Fusarium Root Rot', 'sci': ''}, {'id': 203, 'cat': 'Disease', 'name': 'Thielaviopsis Root Rot', 'sci': ''}, {'id': 204, 'cat': 'Disease', 'name': 'Sclerotinia Stem Rot', 'sci': ''}, {'id': 205, 'cat': 'Disease', 'name': 'Southern Blight', 'sci': ''}, {'id': 206, 'cat': 'Disease', 'name': 'White Mold', 'sci': ''}, {'id': 207, 'cat': 'Disease', 'name': 'Gray Mold', 'sci': ''}, {'id': 208, 'cat': 'Disease', 'name': 'Blue Mold', 'sci': ''}, {'id': 209, 'cat': 'Disease', 'name': 'Green Mold', 'sci': ''}, {'id': 210, 'cat': 'Disease', 'name': 'Bread Mold', 'sci': ''}, {'id': 211, 'cat': 'Disease', 'name': 'Slime Mold', 'sci': ''}, {'id': 212, 'cat': 'Disease', 'name': 'Shot Hole', 'sci': ''}, {'id': 213, 'cat': 'Disease', 'name': 'Tar Spot', 'sci': ''}, {'id': 214, 'cat': 'Disease', 'name': 'Needle Cast', 'sci': ''}, {'id': 215, 'cat': 'Disease', 'name': 'Needle Rust', 'sci': ''}, {'id': 216, 'cat': 'Disease', 'name': 'Needle Blight', 'sci': ''}, {'id': 217, 'cat': 'Disease', 'name': 'Tip Blight', 'sci': ''}, {'id': 218, 'cat': 'Disease', 'name': 'Twig Blight', 'sci': ''}, {'id': 219, 'cat': 'Disease', 'name': 'Spur Blight', 'sci': ''}, {'id': 220, 'cat': 'Disease', 'name': 'Cane Blight', 'sci': ''}, {'id': 221, 'cat': 'Disease', 'name': 'Leaf Blotch', 'sci': ''}, {'id': 222, 'cat': 'Disease', 'name': 'Leaf Scorch', 'sci': ''}, {'id': 223, 'cat': 'Disease', 'name': 'Leaf Burn', 'sci': ''}, {'id': 224, 'cat': 'Disease', 'name': 'Leaf Roll', 'sci': ''}, {'id': 225, 'cat': 'Disease', 'name': 'Leaf Curl', 'sci': ''}, {'id': 226, 'cat': 'Disease', 'name': 'Leaf Distortion', 'sci': ''}, {'id': 227, 'cat': 'Disease', 'name': 'Mosaic', 'sci': ''}, {'id': 228, 'cat': 'Disease', 'name': 'Mottle', 'sci': ''}, {'id': 229, 'cat': 'Disease', 'name': 'Ringspot', 'sci': ''}, {'id': 230, 'cat': 'Disease', 'name': 'Vein Clearing', 'sci': ''}, {'id': 231, 'cat': 'Disease', 'name': 'Vein Banding', 'sci': ''}, {'id': 232, 'cat': 'Disease', 'name': 'Flower Break', 'sci': ''}, {'id': 233, 'cat': 'Disease', 'name': 'Fruit Deformation', 'sci': ''}, {'id': 234, 'cat': 'Disease', 'name': 'Seed Decay', 'sci': ''}, {'id': 235, 'cat': 'Disease', 'name': 'Seedling Blight', 'sci': ''}, {'id': 236, 'cat': 'Disease', 'name': 'Turf Brown Patch', 'sci': ''}, {'id': 237, 'cat': 'Disease', 'name': 'Turf Dollar Spot', 'sci': ''}, {'id': 238, 'cat': 'Disease', 'name': 'Turf Pythium Blight', 'sci': ''}, {'id': 239, 'cat': 'Disease', 'name': 'Turf Rust', 'sci': ''}, {'id': 240, 'cat': 'Disease', 'name': 'Turf Snow Mold', 'sci': ''}, {'id': 241, 'cat': 'Disease', 'name': 'Turf Fairy Ring', 'sci': ''}, {'id': 242, 'cat': 'Disease', 'name': 'Turf Slime Mold', 'sci': ''}, {'id': 243, 'cat': 'Disease', 'name': 'Turf Algae', 'sci': ''}, {'id': 244, 'cat': 'Disease', 'name': 'Turf Moss', 'sci': ''}, {'id': 245, 'cat': 'Disease', 'name': 'Turf Mushrooms', 'sci': ''}, {'id': 246, 'cat': 'Disease', 'name': 'Rose Black Spot', 'sci': ''}, {'id': 247, 'cat': 'Disease', 'name': 'Rose Powdery Mildew', 'sci': ''}, {'id': 248, 'cat': 'Disease', 'name': 'Rose Rust', 'sci': ''}, {'id': 249, 'cat': 'Disease', 'name': 'Rose Canker', 'sci': ''}, {'id': 250, 'cat': 'Disease', 'name': 'Herbicide Injury', 'sci': ''}, {'id': 251, 'cat': 'Disease', 'name': 'Frost Injury', 'sci': ''}, {'id': 252, 'cat': 'Disease', 'name': 'Wind Burn', 'sci': ''}, {'id': 253, 'cat': 'Disease', 'name': 'Waterlogging Damage', 'sci': ''}, {'id': 254, 'cat': 'Disease', 'name': 'Overwatering Damage', 'sci': ''}, {'id': 255, 'cat': 'Disease', 'name': 'Underwatering Stress', 'sci': ''}, {'id': 256, 'cat': 'Disease', 'name': 'Algal Growth', 'sci': ''}, {'id': 257, 'cat': 'Disease', 'name': 'Sclerotium Rot', 'sci': ''}, {'id': 258, 'cat': 'Disease', 'name': 'Downy Leaf Curl', 'sci': ''}, {'id': 259, 'cat': 'Disease', 'name': 'Cucumber Scab', 'sci': ''}, {'id': 260, 'cat': 'Disease', 'name': 'Gummy Stem Blight', 'sci': ''}, {'id': 261, 'cat': 'Disease', 'name': 'Lettuce Downy Mildew', 'sci': ''}, {'id': 262, 'cat': 'Disease', 'name': 'Onion Smut', 'sci': ''}, {'id': 263, 'cat': 'Disease', 'name': 'Carrot Leaf Blight', 'sci': ''}, {'id': 264, 'cat': 'Disease', 'name': 'Celery Leaf Spot', 'sci': ''}, {'id': 265, 'cat': 'Disease', 'name': 'Pepper Anthracnose', 'sci': ''}, {'id': 266, 'cat': 'Disease', 'name': 'Tomato Stem Rot', 'sci': ''}, {'id': 267, 'cat': 'Disease', 'name': 'Black Rot (Crucifers)', 'sci': ''}, {'id': 268, 'cat': 'Disease', 'name': 'Bacterial Leaf Rot', 'sci': ''}, {'id': 269, 'cat': 'Disease', 'name': 'fungal Leaf Rot', 'sci': ''}, {'id': 270, 'cat': 'Disease', 'name': 'Peony Botrytis Blight', 'sci': ''}, {'id': 271, 'cat': 'Disease', 'name': 'Iris Leaf Spot', 'sci': ''}, {'id': 272, 'cat': 'Disease', 'name': 'Daylily Rust', 'sci': ''}, {'id': 273, 'cat': 'Disease', 'name': 'Puccinia Rust', 'sci': ''}, {'id': 274, 'cat': 'Disease', 'name': 'Rhizoctonia Leaf Spot', 'sci': ''}, {'id': 275, 'cat': 'Disease', 'name': 'Fairy Ring (Turf)', 'sci': ''}, {'id': 276, 'cat': 'Disease', 'name': 'Dollar Spot (Turf)', 'sci': ''}, {'id': 277, 'cat': 'Disease', 'name': 'Red Thread (Turf)', 'sci': ''}, {'id': 278, 'cat': 'Disease', 'name': 'Brown Ring Patch', 'sci': ''}, {'id': 279, 'cat': 'Disease', 'name': 'Spring Dead Spot', 'sci': ''}, {'id': 280, 'cat': 'Disease', 'name': 'Summer Patch', 'sci': ''}, {'id': 281, 'cat': 'Disease', 'name': 'Take-All Patch', 'sci': ''}, {'id': 282, 'cat': 'Disease', 'name': 'Necrotic Ring Spot', 'sci': ''}, {'id': 283, 'cat': 'Disease', 'name': 'Leaf Smut', 'sci': ''}, {'id': 284, 'cat': 'Disease', 'name': 'Loose Smut', 'sci': ''}, {'id': 285, 'cat': 'Disease', 'name': 'Covered Smut', 'sci': ''}, {'id': 286, 'cat': 'Disease', 'name': 'Bunt Disease', 'sci': ''}, {'id': 287, 'cat': 'Disease', 'name': 'Karnal Bunt', 'sci': ''}, {'id': 288, 'cat': 'Disease', 'name': 'Ergot of Rye', 'sci': ''}, {'id': 289, 'cat': 'Disease', 'name': 'Fusarium Head Blight', 'sci': ''}, {'id': 290, 'cat': 'Disease', 'name': 'Tan Spot', 'sci': ''}, {'id': 291, 'cat': 'Disease', 'name': 'Spot Blotch', 'sci': ''}, {'id': 292, 'cat': 'Disease', 'name': 'Net Blotch', 'sci': ''}, {'id': 293, 'cat': 'Disease', 'name': 'Scald (Barley)', 'sci': ''}, {'id': 294, 'cat': 'Disease', 'name': 'Septoria Glume Blotch', 'sci': ''}, {'id': 295, 'cat': 'Disease', 'name': 'Stagonospora Blotch', 'sci': ''}, {'id': 296, 'cat': 'Disease', 'name': 'Eyespot', 'sci': ''}, {'id': 297, 'cat': 'Disease', 'name': 'Sharp Eyespot', 'sci': ''}, {'id': 298, 'cat': 'Disease', 'name': 'Cephalosporium Stripe', 'sci': ''}, {'id': 299, 'cat': 'Disease', 'name': 'Common Root Rot', 'sci': ''}, {'id': 300, 'cat': 'Disease', 'name': 'Pythium Root Rot', 'sci': ''}
+        ]
+    };
+
+    let currentMode = 'plants';
+    let currentFilter = 'all';
+
+    // ==========================================
+    // 2. 核心渲染逻辑
+    // ==========================================
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        renderFilters();
+        renderGrid(db.plants);
+        setupSearch();
+    });
+
+    // 切换模式 (Plants <-> Pests)
+    function switchMode(mode, btn) {
+        currentMode = mode;
+        currentFilter = 'all'; // 重置筛选
+        
+        // 更新 UI 样式
+        document.body.setAttribute('data-mode', mode);
+        document.querySelectorAll('#modeTabs .nav-link').forEach(l => l.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 清空搜索框
+        document.getElementById('searchInput').value = '';
+        
+        // 重新渲染
+        renderFilters();
+        const data = mode === 'plants' ? db.plants : db.pests;
+        renderGrid(data);
+    }
+
+    // 渲染筛选按钮
+    function renderFilters() {
+        const container = document.getElementById('filtersContainer');
+        const data = currentMode === 'plants' ? db.plants : db.pests;
+        
+        // 提取所有分类并去重
+        const categories = ['all', ...new Set(data.map(item => item.cat))];
+        
+        container.innerHTML = categories.map(cat => {
+            const label = cat === 'all' ? '全部' : cat;
+            return `<button class="btn btn-filter ${cat === 'all' ? 'active' : ''}" 
+                    onclick="applyFilter('${cat}', this)">${label}</button>`;
+        }).join('');
+    }
+
+    // 应用筛选
+    function applyFilter(category, btn) {
+        currentFilter = category;
+        
+        // 更新按钮状态
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 触发搜索过滤
+        filterData();
+    }
+
+    // 渲染网格
+    function renderGrid(data) {
+        const grid = document.getElementById('contentGrid');
+        const emptyState = document.getElementById('emptyState');
+        const countLabel = document.getElementById('resultCount');
+        
+        // 清空内容
+        grid.innerHTML = '';
+        
+        // 更新计数
+        countLabel.textContent = `显示 ${data.length} 个结果`;
+
+        if (data.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        } else {
+            emptyState.style.display = 'none';
+        }
+
+        // 性能优化：使用 DocumentFragment 批量插入
+        const fragment = document.createDocumentFragment();
+
+        data.forEach(item => {
+            const col = document.createElement('div');
+            col.className = 'col';
+            
+            // 构建搜索关键词
+            const keyword = encodeURIComponent(`${item.name} ${item.sci} ${currentMode === 'plants' ? 'plant' : 'pest'}`);
+            // Bing 图片源
+            const imgSrc = `https://tse1.mm.bing.net/th?q=${keyword}&w=400&h=300&c=7&rs=1&p=0`;
+            // Google 详情链接
+            const googleLink = `https://www.google.com/search?q=${keyword}&tbm=isch`;
+
+            col.innerHTML = `
+                <div class="item-card">
+                    <div class="img-container">
+                        <span class="id-badge">#${item.id}</span>
+                        <div class="skeleton"></div>
+                        <a href="${googleLink}" target="_blank">
+                            <img src="${imgSrc}" 
+                                 alt="${item.name}" 
+                                 loading="lazy"
+                                 onload="this.classList.add('loaded'); this.closest('.img-container').querySelector('.skeleton').style.display='none';"
+                                 onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'; this.closest('.img-container').querySelector('.skeleton').style.display='none';">
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="item-category">${item.cat}</span></div>
+                        <h3 class="item-name" title="${item.name}">${item.name}</h3>
+                        <div class="item-sci">${item.sci}</div>
+                        
+                        <div class="card-footer-link">
+                            <a href="${googleLink}" target="_blank" class="btn-view">
+                                <i class="far fa-images me-1"></i> 查看图库
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            fragment.appendChild(col);
+        });
+        
+        grid.appendChild(fragment);
+    }
+
+    // ==========================================
+    // 3. 搜索与交互逻辑
+    // ==========================================
+    
+    // 防抖函数 (优化搜索性能)
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // 设置搜索监听
+    function setupSearch() {
+        const input = document.getElementById('searchInput');
+        input.addEventListener('input', debounce(filterData, 300));
+    }
+
+    // 统一过滤逻辑
+    function filterData() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const sourceData = currentMode === 'plants' ? db.plants : db.pests;
+        
+        const filtered = sourceData.filter(item => {
+            // 1. 分类筛选
+            const matchCat = currentFilter === 'all' || item.cat === currentFilter;
+            
+            // 2. 文本搜索 (匹配 ID、俗名、学名)
+            const matchText = !searchTerm || 
+                              item.name.toLowerCase().includes(searchTerm) || 
+                              item.sci.toLowerCase().includes(searchTerm) || 
+                              item.id.toString().includes(searchTerm);
+            
+            return matchCat && matchText;
+        });
+
+        renderGrid(filtered);
+    }
+
+    // 滚动回到顶部逻辑
+    window.addEventListener('scroll', () => {
+        const btn = document.getElementById('btnBackTop');
+        if (window.scrollY > 300) {
+            btn.style.display = 'block';
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+
+</script>
+</body>
+</html>
