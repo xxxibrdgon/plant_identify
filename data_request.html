@@ -3,284 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>植物识别产品：数据分析 & 需求</title>
+    <title>植物识别产品：合作需求方案 (v14)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Urbanist:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* 1. SETUP & THEME */
-        * { box-sizing: border-box; }
-        
-        body {
-            background-color: #1a1a1a;
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr;
-            margin: 0;
-            min-height: 100vh;
-            padding: 20px 0;
-            place-items: center;
-            font-family: 'Noto Sans SC', sans-serif;
-            color: #f1f5f9;
+        /* --- 1. 全局变量与重置 --- */
+        :root {
+            /* 品牌色 */
+            --primary: #00E676;      
+            --secondary: #2979FF;    
+            --tertiary: #D500F9;     
+            --accent: #FFD600;       
+            --danger: #FF5252;       
+            
+            /* 背景色体系 */
+            --bg-body: #050505;
+            --bg-slide: #121212;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            
+            /* 文本色 */
+            --text-main: #ffffff;
+            --text-sub: #d0d0d0; 
+            --text-dim: #888888;
+
+            /* 阴影与边框 */
+            --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --border-light: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .slide-container {
-            background-color: #0f172a; /* Dark Blue-Grey Background */
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
-            height: 720px;
-            overflow: hidden;
-            padding: 50px 60px;
-            position: relative;
+            align-items: center;
+            gap: 60px;
+            padding: 60px 20px;
+            min-height: 100vh;
+        }
+
+        /* --- 2. 幻灯片容器 --- */
+        .slide-container {
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
             width: 1280px;
-            border: 1px solid #334155;
+            height: 720px; 
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: var(--border-light);
+            padding: 48px 64px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0; 
         }
 
-        /* 颜色定义：兼顾商业与技术感 */
-        :root {
-            --accent-color: #4ade80;    /* Plant Green */
-            --tech-blue: #38bdf8;       /* Tech Blue */
-            --danger-color: #f87171;    /* Alert Red */
-            --warning-color: #fbbf24;
-            --bg-card: #1e293b;
-            --text-muted: #94a3b8;
-        }
+        /* 响应式缩放 */
+        @media (max-width: 1300px) { body { zoom: 0.8; } }
+        @media (max-width: 1000px) { body { zoom: 0.6; } }
 
-        /* 2. TYPOGRAPHY */
-        h1, h2, h3 {
-            font-family: 'Noto Sans SC', sans-serif;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        h1 { font-size: 56px; line-height: 1.1; color: #fff; }
-        h1 span { color: var(--accent-color); }
+        /* --- 3. 排版体系 (加大字号) --- */
+        h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.02em; }
         
+        h1 { font-size: 76px; line-height: 1.1; margin-bottom: 24px; } 
+        h1 span { 
+            background: linear-gradient(90deg, var(--primary), #69F0AE); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        h3 { font-size: 30px; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 14px; } 
+        h3 i { color: var(--text-sub); font-size: 0.9em; }
+
+        /* 全局正文加大 */
+        p, li, td {
+            font-size: 22px; 
+            line-height: 1.5;
+            color: var(--text-sub);
+        }
+
+        strong { color: var(--text-main); font-weight: 700; }
+
+        .tag {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 100px;
+            background: rgba(255,255,255,0.1);
+            font-size: 16px; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* --- 4. 头部设计 --- */
         .slide-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #334155;
-            padding-bottom: 15px;
+            align-items: flex-end;
+            margin-bottom: 24px; 
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .slide-title {
-            font-size: 36px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .slide-index {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 48px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.1);
-            position: absolute;
-            right: 40px;
-            top: 30px;
-        }
+        .slide-title { font-size: 42px; font-weight: 700; color: var(--text-main); } 
+        .slide-index { font-family: 'Urbanist', sans-serif; font-size: 64px; color: rgba(255,255,255,0.05); font-weight: 900; line-height: 0.8; }
 
-        p, li {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #cbd5e1;
-        }
-
-        /* 3. LAYOUT COMPONENTS */
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            width: 100%;
-        }
-
+        /* --- 5. 布局网格 --- */
+        .content-area { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; justify-content: flex-start; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; height: 100%; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; height: 100%; }
+        .grid-1-2 { display: grid; grid-template-columns: 380px 1fr; gap: 50px; height: 100%; }
 
-        /* Cards */
+        /* --- 6. 卡片组件 --- */
         .card {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            padding: 25px;
-            border: 1px solid #334155;
+            background: var(--bg-card);
+            border: var(--border-light);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            height: 100%;
+            justify-content: center;
         }
         
-        .card h3 {
-            color: #fff;
-            font-size: 20px;
-            margin-bottom: 15px;
+        .card.no-bg { background: transparent; border: none; padding: 0; box-shadow: none; backdrop-filter: none; }
+
+        .border-left-primary { border-left: 5px solid var(--primary); }
+        .border-left-secondary { border-left: 5px solid var(--secondary); }
+        .border-left-danger { border-left: 5px solid var(--danger); }
+        .border-left-accent { border-left: 5px solid var(--accent); }
+
+        /* --- 7. 特殊组件样式 --- */
+
+        /* 营收列表 (无进度条版) */
+        .rev-list { display: flex; flex-direction: column; gap: 20px; }
+        .rev-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .rev-item:last-child { border-bottom: none; padding-bottom: 0; }
+        
+        .rev-rank { 
+            font-family: 'Urbanist', sans-serif; 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: rgba(255,255,255,0.1); 
+            margin-right: 20px;
+            width: 40px;
+        }
+        .rev-name { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .rev-val { font-family: 'Urbanist', sans-serif; font-size: 28px; font-weight: 700; color: var(--primary); text-align: right; }
+
+        /* 表格 */
+        .vs-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .vs-table th { text-align: left; color: var(--text-dim); font-size: 18px; font-weight: 600; uppercase; padding: 0 20px 8px 20px; letter-spacing: 1px; }
+        .vs-table td { background: rgba(255,255,255,0.03); padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; font-size: 20px;}
+        .vs-table tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid rgba(255,255,255,0.05); color: var(--text-main); font-weight: 700; font-size: 22px;}
+        .vs-table tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid rgba(255,255,255,0.05); }
+        
+        .vs-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: #fff; }
+
+        /* 策略方块 - 优化对齐 */
+        .strat-box {
+            background: rgba(255,255,255,0.03); 
+            padding: 24px; 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+            display: flex; 
+            align-items: center; /* 垂直居中 */
+            gap: 20px; 
+            border: 1px solid rgba(255,255,255,0.05);
+            min-height: 120px; 
+        }
+        .strat-icon { 
+            font-size: 42px; 
+            width: 50px; 
+            text-align: center; 
+            flex-shrink: 0; 
+            line-height: 1;
+        }
+        /* 强制单行并加省略号 (保险起见), 或者允许换行但高度足够 */
+        .strat-title { 
+            font-size: 21px; /* 稍微调小一点点确保安全 */
+            font-weight: 700; 
+            color: var(--text-main); 
+            margin-bottom: 6px; 
+            white-space: nowrap; /* 强制不换行，保持对齐 */
+        }
+        .strat-desc { font-size: 18px; line-height: 1.4; opacity: 0.9; }
+
+        /* 问题列表 */
+        .prob-row {
+            background: linear-gradient(90deg, rgba(255, 82, 82, 0.1) 0%, rgba(255, 82, 82, 0.02) 100%);
+            border-left: 6px solid var(--danger);
+            padding: 24px 32px;
+            margin-bottom: 20px;
+            border-radius: 0 12px 12px 0;
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
+            gap: 32px;
         }
+        .prob-num { font-family: 'Urbanist', monospace; font-size: 64px; font-weight: 800; color: var(--danger); opacity: 0.5; width: 50px; text-align: center; line-height: 1;}
+        .prob-text h4 { font-size: 26px; margin-bottom: 8px; color: var(--text-main); }
+        .prob-text p { font-size: 22px; color: var(--text-sub); margin: 0; opacity: 0.9; }
 
-        .card-highlight { border-top: 4px solid var(--accent-color); }
-        .card-tech { border-top: 4px solid var(--tech-blue); }
-        .card-alert { border-top: 4px solid var(--danger-color); }
-
-        /* Data Visualization Styles */
-        .stat-box {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        /* 图标网格 (Slide 5) */
+        .icon-grid-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 24px 16px;
+            border-radius: 12px;
+            text-align: center;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            gap: 12px;
         }
-        
-        .stat-val { font-family: 'Urbanist', sans-serif; font-weight: bold; font-size: 20px; color: var(--accent-color); }
-        
-        /* Table Styles */
-        .compare-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .compare-table th { text-align: left; color: var(--text-muted); padding: 10px; font-size: 16px; border-bottom: 1px solid #475569; }
-        .compare-table td { padding: 15px 10px; border-bottom: 1px solid #334155; font-size: 16px; }
-        
-        /* Tags */
-        .tag {
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .tag-market { background: rgba(74, 222, 128, 0.2); color: var(--accent-color); }
-        .tag-tech { background: rgba(56, 189, 248, 0.2); color: var(--tech-blue); }
+        .icon-grid-item i { font-size: 40px; margin-bottom: 8px; }
+        .icon-grid-item .title { font-size: 22px; font-weight: 700; color: var(--text-main); }
+        .icon-grid-item .desc { font-size: 18px; color: var(--text-sub); }
 
-        /* Gap Bar */
-        .gap-container { margin-top: 20px; }
-        .gap-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
-        .progress-bg { background: #334155; height: 10px; border-radius: 5px; position: relative; }
-        .progress-fill { background: var(--danger-color); height: 100%; border-radius: 5px; position: absolute; left: 0; top: 0; }
-        .progress-target { position: absolute; right: 0; top: -5px; width: 4px; height: 20px; background: var(--accent-color); z-index: 2; }
     </style>
 </head>
 <body>
 
-<!-- Slide 1: 封面 -->
-<div class="slide-container" id="slide1">
-    <div style="display:flex; flex-direction:column; justify-content:center; height:100%; padding-left:40px;">
-        <div style="font-family: 'Urbanist', sans-serif; color: var(--tech-blue); font-size: 18px; letter-spacing: 2px; margin-bottom: 20px;">AI MODEL PARTNERSHIP PROPOSAL</div>
-        <h1>植物识别产品<br><span>数据分析 & 需求</span></h1>
-        <p style="font-size: 24px; color: var(--text-muted); margin-top: 20px; max-width: 800px;">
-            基于市场机会分析、核心差异化定位及 AI 技术指标定义
+<!-- Slide 1: Cover -->
+<div class="slide-container" style="justify-content: center;">
+    <div style="padding: 0 40px;">
+        <div style="font-family:'Urbanist'; color:var(--primary); font-size:20px; letter-spacing:4px; margin-bottom:24px; font-weight:800; opacity: 0.9;">PROJECT: PLANT ID</div>
+        <h1>植物识别产品<br><span>合作需求方案</span></h1>
+        <p style="font-size:32px; color:var(--text-sub); margin-top:40px; max-width:900px; border-left:6px solid var(--primary); padding-left:32px; line-height:1.4;">
+            基于市场机会、核心差异化策略及关键技术改进指标
         </p>
-        <div style="margin-top: 60px; display: flex; gap: 20px;">
-            <span class="tag tag-market">Market Insight</span>
-            <span class="tag tag-tech">Technical Specs</span>
-            <span class="tag tag-market">Product Strategy</span>
+        <div style="margin-top:80px; display:flex; gap:20px;">
+            <span class="tag">Market Analysis</span>
+            <span class="tag">Product Strategy</span>
+            <span class="tag">Tech Specs</span>
         </div>
     </div>
+    
+    <!-- Decorative Circle -->
+    <div style="position: absolute; right: -100px; bottom: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,230,118,0.05) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none;"></div>
 </div>
 
-<!-- Slide 2: 市场格局与定位 (对应第1点) -->
-<div class="slide-container" id="slide2">
+<!-- Slide 2: Market -->
+<div class="slide-container">
     <div class="slide-header">
         <div class="slide-title">1. 市场格局与竞品定位</div>
         <div class="slide-index">01</div>
     </div>
     <div class="content-area">
-        <div class="grid-2">
-            <div class="card card-highlight">
-                <h3><i class="fa-solid fa-chart-line"></i> 收入与梯队 (Revenue Tier)</h3>
-                <div class="stat-box">
-                    <span>PictureThis (Leader)</span>
-                    <span class="stat-val">$90k+ / day</span>
+        <div class="grid-1-2">
+            <!-- Left: Revenue Chart (Updated: Card Style, No Bars) -->
+            <div class="card border-left-primary">
+                <h3 style="margin-bottom:32px;"><i class="fa-solid fa-trophy" style="color:var(--accent)"></i> 营收排行榜 (Daily)</h3>
+                
+                <div class="rev-list">
+                    <div class="rev-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="rev-rank">01</div>
+                            <div class="rev-name">PictureThis</div>
+                        </div>
+                        <div class="rev-val" style="color:var(--primary)">$90k+</div>
+                    </div>
+
+                    <div class="rev-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="rev-rank">02</div>
+                            <div class="rev-name">Plantin</div>
+                        </div>
+                        <div class="rev-val" style="color:var(--secondary)">$35k+</div>
+                    </div>
+
+                    <div class="rev-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="rev-rank">03</div>
+                            <div class="rev-name">Plant Parent</div>
+                        </div>
+                        <div class="rev-val" style="color:var(--tertiary)">$6.6k</div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <span>Plantin (Challenger)</span>
-                    <span class="stat-val">$35k+ / day</span>
-                </div>
-                <div class="stat-box">
-                    <span>Plant Parent (Niche)</span>
-                    <span class="stat-val">$6.6k+ / day</span>
-                </div>
-                <p style="margin-top:15px; font-size:16px; color:#cbd5e1;">
-                    <strong>结论：</strong> 市场头部效应明显，但垂直细分领域（如 Plant Parent 的养护方向）仍有稳定的变现能力。
-                </p>
             </div>
-            <div class="card">
-                <h3><i class="fa-solid fa-map-pin"></i> 竞品定位差异</h3>
-                <ul style="margin-top:10px;">
-                    <li style="margin-bottom:15px;">
-                        <strong>PictureThis:</strong> <span style="color:var(--accent-color)">全能百科</span><br>
-                        大而全，识别库庞大，流量入口，定位于“什么都能扫”。
-                    </li>
-                    <li style="margin-bottom:15px;">
-                        <strong>Plantin:</strong> <span style="color:var(--tech-blue)">智能管家</span><br>
-                        强调“诊断”与“照料”，功能更偏向工具属性，而非单纯的知识科普。
-                    </li>
-                    <li>
-                        <strong>我们的切入机会:</strong><br>
-                        针对 45+ 高龄用户，做<strong>“极简操作 + 专精诊断”</strong>的垂直工具。
-                    </li>
-                </ul>
+
+            <!-- Right: Positioning -->
+            <div class="card border-left-secondary">
+                <h3><i class="fa-solid fa-map-pin" style="color: var(--secondary)"></i> 竞品定位差异</h3>
+                <div style="display:flex; flex-direction:column; gap:36px; padding-top: 10px;">
+                    <div>
+                        <div style="font-size:24px; font-weight:700; color:var(--primary); margin-bottom:8px;">PictureThis: 全能百科</div>
+                        <p style="font-size:20px;">识别库庞大，定位于“什么都能扫”。技术侧重海量分类 (10k+)。</p>
+                    </div>
+                    <div>
+                        <div style="font-size:24px; font-weight:700; color:var(--secondary); margin-bottom:8px;">Plantin: 智能管家</div>
+                        <p style="font-size:20px;">强调“诊断”与“照料”，工具属性强。技术侧重 AR 诊断。</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px;">
+                        <div style="font-size:24px; font-weight:700; color:#fff; margin-bottom:8px;">我们的切入点</div>
+                        <p style="color:#ddd; font-size:22px;">针对 45+ 高龄用户，做<strong>“极简操作 + 专精诊断”</strong>的垂直工具。</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Slide 3: 竞品功能结构 (对应第2点) -->
-<div class="slide-container" id="slide3">
+<!-- Slide 3: Function Comparison -->
+<div class="slide-container">
     <div class="slide-header">
-        <div class="slide-title">2. 竞品功能结构与差异比较</div>
+        <div class="slide-title">2. 竞品功能差异化</div>
         <div class="slide-index">02</div>
     </div>
     <div class="content-area">
-        <div class="card card-tech">
-            <h3>功能模块横向对比</h3>
-            <table class="compare-table">
+        <div class="card no-bg">
+            <table class="vs-table">
                 <thead>
                     <tr>
-                        <th width="20%">功能模块</th>
-                        <th width="40%">竞品主流方案 (Competitors)</th>
-                        <th width="40%">我们的差异化策略 (Strategy)</th>
+                        <th width="18%">功能模块</th>
+                        <th width="41%">竞品痛点</th>
+                        <th width="41%" style="color:var(--primary)">我方策略</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="color:#fff; font-weight:bold;">核心识别</td>
+                        <td>识别体验</td>
                         <td>
-                            植物ID与病害诊断通常分离，需手动切换模式。<br>
-                            <span style="font-size:14px; color:#f87171;">痛点：流程割裂，操作复杂。</span>
+                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 流程割裂</div>
+                            <div style="font-size:20px;">需先选模式（查花/查树/查病），容易混淆。</div>
                         </td>
                         <td>
-                            <strong>Auto-Detect Mode:</strong><br>
-                            一次扫描，同时输出植物名称与健康状态（自动判断是否健康）。
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="color:#fff; font-weight:bold;">养护工具</td>
-                        <td>
-                            基于规则的简单提醒（几天浇一次水），缺乏环境感知。
-                        </td>
-                        <td>
-                            <strong>传感器工具箱 (Toolkit):</strong><br>
-                            利用手机传感器开发“光照计”、“AI 浇水计算器”等实用工具。
+                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 全能扫描</div>
+                            <div style="font-size:20px; color: #fff; margin-bottom: 4px;"><strong>Zero-Config:</strong> 无需选分类，单叶直出。</div>
+                            <div style="font-size:16px; color:var(--secondary); opacity: 0.8;">*仅针对病害诊断时，无需填写症状。</div>
                         </td>
                     </tr>
                     <tr>
-                        <td style="color:#fff; font-weight:bold;">内容展示</td>
+                        <td>养护工具</td>
                         <td>
-                            静态百科全书，文字密集。
+                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 参数复杂</div>
+                            <div style="font-size:20px;">专业光照计数值硬核，普通用户看不懂。</div>
                         </td>
                         <td>
-                            <strong>结构化诊断卡片:</strong><br>
-                            类似“体检报告”，重点展示：严重程度、是否传染、处理步骤。
+                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 红绿灯指示</div>
+                            <div style="font-size:20px; color: #fff;"><strong>Visual Toolkit:</strong> 复杂参数转化为“适宜/过强”的直观反馈。</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>结果展示</td>
+                        <td>
+                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 建议单一</div>
+                            <div style="font-size:20px;">仅提供化学药剂建议，或泛泛的“少浇水”。</div>
+                        </td>
+                        <td>
+                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 分层建议</div>
+                            <div style="font-size:20px; color: #fff;"><strong>Dual Advice:</strong> 同时提供【家庭偏方】与【专业药剂】。</div>
                         </td>
                     </tr>
                 </tbody>
@@ -289,191 +375,208 @@
     </div>
 </div>
 
-<!-- Slide 4: 核心能力界定 (对应第3点) -->
-<div class="slide-container" id="slide4">
+<!-- Slide 4: Strategy (Fixed Alignment with Shorter Title) -->
+<div class="slide-container">
     <div class="slide-header">
-        <div class="slide-title">3. 核心识别能力: US Top 300 & 病害</div>
+        <div class="slide-title">3. 核心差异化策略</div>
         <div class="slide-index">03</div>
     </div>
     <div class="content-area">
-        <div class="grid-2">
-            <div class="card card-highlight">
-                <h3><i class="fa-solid fa-list-ol"></i> US Top 300 重点植物分类</h3>
-                <p style="font-size:16px; margin-bottom:15px;">
-                    无需追求 10000+ 种全库，优先攻克美国市场最高频的 <strong>Top 300 (覆盖 80% 场景)</strong>：
-                </p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
-                        <strong style="color:var(--accent-color)">1. Fruits & Veg</strong><br>
-                        <span style="font-size:14px;">番茄、辣椒、柠檬 (Kitchen Garden刚需)</span>
+        <div class="grid-3">
+            <!-- Col 1 -->
+            <div class="card border-left-secondary">
+                <h3 style="color:var(--secondary);"><i class="fa-solid fa-wand-magic-sparkles"></i> 无界识别</h3>
+                <div class="strat-box">
+                    <div class="strat-icon">⚡️</div>
+                    <div>
+                        <div class="strat-title">Zero-Config</div>
+                        <div class="strat-desc">植物/花草/蘑菇混合识别，无需预选。</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
-                        <strong style="color:var(--accent-color)">2. Houseplants</strong><br>
-                        <span style="font-size:14px;">龟背竹、绿萝、多肉 (室内高频)</span>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
-                        <strong style="color:var(--accent-color)">3. Weeds</strong><br>
-                        <span style="font-size:14px;">蒲公英、马唐 (庭院除草需求)</span>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
-                        <strong style="color:var(--accent-color)">4. Toxic</strong><br>
-                        <span style="font-size:14px;">常春藤、夹竹桃 (宠物安全预警)</span>
+                </div>
+                <div class="strat-box">
+                    <div class="strat-icon">📍</div>
+                    <div>
+                        <!-- Shortened Title to Ensure Alignment -->
+                        <div class="strat-title">Zero-Input</div>
+                        <div class="strat-desc"><strong>病害专用：</strong>免去输入“地理位置/环境”等步骤。</div>
                     </div>
                 </div>
             </div>
-            <div class="card card-tech">
-                <h3><i class="fa-solid fa-virus"></i> 病害诊断核心能力要求</h3>
-                <ul style="margin-top:10px;">
-                    <li style="margin-bottom:15px;">
-                        <strong>区分物理 vs 病理:</strong><br>
-                        模型需能区分“叶片自然破损/老化”与“真菌感染/虫害”。竞品常将物理破损误报为病害。
-                    </li>
-                    <li style="margin-bottom:15px;">
-                        <strong>视觉定位 (Bounding Box):</strong><br>
-                        不只是输出结果，必须在图上<strong>精准框选</strong>病灶位置，建立信任感。
-                    </li>
-                    <li>
-                        <strong>严重程度分级:</strong><br>
-                        输出 <span style="color:#fbbf24">Warning (轻微)</span> 或 <span style="color:#f87171">Critical (严重)</span> 标签。
-                    </li>
-                </ul>
+
+            <!-- Col 2 -->
+            <div class="card border-left-danger">
+                <h3 style="color:var(--danger);"><i class="fa-solid fa-shield-cat"></i> 安全与省心</h3>
+                <div class="strat-box">
+                    <div class="strat-icon">🐱</div>
+                    <div>
+                        <div class="strat-title">Pet Safety</div>
+                        <div class="strat-desc">首屏大红框预警植物毒性，保护宠物。</div>
+                    </div>
+                </div>
+                <div class="strat-box">
+                    <div class="strat-icon">✈️</div>
+                    <div>
+                        <div class="strat-title">Vacation Mode</div>
+                        <div class="strat-desc">一键生成“代浇水指南”，发给邻居。</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col 3 -->
+            <div class="card border-left-accent">
+                <h3 style="color:var(--accent);"><i class="fa-solid fa-flask"></i> 分层治疗</h3>
+                <div class="strat-box">
+                    <div class="strat-icon">🏠</div>
+                    <div>
+                        <div class="strat-title">Home Remedies</div>
+                        <div class="strat-desc">优先推荐家庭偏方（如肥皂水），安全无毒。</div>
+                    </div>
+                </div>
+                <div class="strat-box">
+                    <div class="strat-icon">💊</div>
+                    <div>
+                        <div class="strat-title">Pro Solutions</div>
+                        <div class="strat-desc">针对重症的专业化学药剂推荐。</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Slide 5: 产品定位与切入点 (对应第4点) -->
-<div class="slide-container" id="slide5">
+<!-- Slide 5: Capabilities -->
+<div class="slide-container">
     <div class="slide-header">
-        <div class="slide-title">4. 产品定位与切入点</div>
+        <div class="slide-title">4. 核心能力: US Top 300 & 病害</div>
         <div class="slide-index">04</div>
     </div>
     <div class="content-area">
-        <div class="grid-3">
-            <div class="card">
-                <h3><i class="fa-solid fa-bullseye" style="color:var(--accent-color)"></i> 定位 (Positioning)</h3>
-                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"家庭园艺的高级诊断工具"</p>
-                <p style="font-size:16px;">
-                    避开 PictureThis 的“全能百科”锋芒，做深“诊断”和“工具”属性。
-                </p>
-            </div>
-            <div class="card">
-                <h3><i class="fa-solid fa-user-group" style="color:var(--tech-blue)"></i> 切入点 (Target)</h3>
-                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"适老化 & 极简设计"</p>
-                <p style="font-size:16px;">
-                    针对 45+ 核心付费人群，设计大字体、高对比度、线性操作流程，降低使用门槛。
-                </p>
-            </div>
-            <div class="card">
-                <h3><i class="fa-solid fa-toolbox" style="color:#fbbf24"></i> 特色功能 (Features)</h3>
-                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"Toolkit 工具箱"</p>
-                <p style="font-size:16px;">
-                    利用光照计、水量计算器等高频小工具，解决“没病害时就不打开 App”的留存难题。
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Slide 6: 原型评估与差距 (对应第5点) -->
-<div class="slide-container" id="slide6">
-    <div class="slide-header">
-        <div class="slide-title">5. 现有原型评估与竞品差距</div>
-        <div class="slide-index">05</div>
-    </div>
-    <div class="content-area">
         <div class="grid-2">
-            <div class="card card-alert">
-                <h3><i class="fa-solid fa-triangle-exclamation"></i> 现有原型 GAP 分析</h3>
-                
-                <div class="gap-container">
-                    <div class="gap-label">
-                        <span>病害识别准确率 (Accuracy)</span>
-                        <span style="color:var(--danger-color)">Current: 60%</span>
+            <div class="card border-left-primary">
+                <h3 style="margin-bottom:24px;"><i class="fa-solid fa-layer-group" style="color: var(--primary)"></i> US Top 300 重点分类</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="icon-grid-item">
+                        <i class="fa-solid fa-lemon" style="color:var(--accent);"></i>
+                        <div class="title">Fruits & Veg</div>
+                        <div class="desc">家庭菜园刚需</div>
                     </div>
-                    <div class="progress-bg">
-                        <div class="progress-fill" style="width: 60%;"></div>
-                        <div class="progress-target" style="left: 90%;" title="Target: 90%"></div>
+                    <div class="icon-grid-item">
+                        <i class="fa-solid fa-plant-wilt" style="color:var(--primary);"></i>
+                        <div class="title">Houseplants</div>
+                        <div class="desc">龟背竹/绿萝</div>
                     </div>
-                    <div style="text-align:right; font-size:12px; color:var(--accent-color); margin-top:5px;">Target: 90%</div>
-                </div>
-
-                <div class="gap-container">
-                    <div class="gap-label">
-                        <span>病灶标注偏移 (IoU)</span>
-                        <span style="color:var(--danger-color)">Current: Poor</span>
+                    <div class="icon-grid-item">
+                        <i class="fa-brands fa-pagelines" style="color:var(--tertiary);"></i>
+                        <div class="title">Weeds</div>
+                        <div class="desc">庭院除草识别</div>
                     </div>
-                    <div class="progress-bg">
-                        <div class="progress-fill" style="width: 40%;"></div>
-                        <div class="progress-target" style="left: 85%;" title="Target: 0.85"></div>
+                    <div class="icon-grid-item">
+                        <i class="fa-solid fa-skull-crossbones" style="color:var(--danger);"></i>
+                        <div class="title">Toxic</div>
+                        <div class="desc">过敏/有毒预警</div>
                     </div>
-                    <div style="text-align:right; font-size:12px; color:var(--accent-color); margin-top:5px;">Target: IoU > 0.85</div>
-                </div>
-
-                <div style="margin-top:30px; border-top:1px solid #334155; padding-top:20px;">
-                    <p><strong>主要问题：</strong></p>
-                    <ul style="font-size:16px;">
-                        <li>无法区分“缺水黄叶”与“病毒黄叶”。</li>
-                        <li>微距拍摄时无法对焦，且无模糊检测提示。</li>
-                    </ul>
                 </div>
             </div>
             
-            <div class="card">
-                <h3><i class="fa-solid fa-magnifying-glass-chart"></i> 竞品表现参考</h3>
-                <p><strong>Plantin / PictureThis 优势：</strong></p>
-                <ul style="font-size:16px; margin-top:10px;">
-                    <li><strong>置信度过滤：</strong> 当识别结果不确定时，会引导用户重拍或展示Top-3选项，而不是强行给出一个错误结果。</li>
-                    <li><strong>多角度融合：</strong> 支持上传叶片、花朵、树干多张图进行综合判断。</li>
+            <div class="card border-left-danger">
+                <h3><i class="fa-solid fa-virus" style="color: var(--danger)"></i> 病害诊断能力要求</h3>
+                <ul style="display:flex; flex-direction:column; gap:24px; margin-top:10px; list-style: none;">
+                    <li>
+                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">1. 区分物理 vs 病理</div>
+                        <div style="font-size: 20px;">模型需能区分“自然老化/机械损伤”与“真菌/虫害”。(竞品常误报)</div>
+                    </li>
+                    <li>
+                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">2. 精准视觉定位</div>
+                        <div style="font-size: 20px;">必须在图上输出精准的 <span style="color: var(--secondary); background: rgba(41,121,255,0.1); padding: 2px 8px; border-radius: 4px;">Bounding Box</span>，而非整株框选。</div>
+                    </li>
+                    <li>
+                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">3. 严重程度分级</div>
+                        <div style="font-size: 20px;">输出 <span style="color:var(--accent)">Warning (轻微)</span> 或 <span style="color:var(--danger)">Critical (严重)</span>。</div>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Slide 7: AI 团队需求 (对应第6点) -->
-<div class="slide-container" id="slide7">
+<!-- Slide 6: Issues -->
+<div class="slide-container">
     <div class="slide-header">
-        <div class="slide-title">6. 需求与指标</div>
+        <div class="slide-title">5. 现有原型主要问题</div>
+        <div class="slide-index">05</div>
+    </div>
+    <div class="content-area">
+        <!-- Problem 1 -->
+        <div class="prob-row">
+            <div class="prob-num">1</div>
+            <div class="prob-text">
+                <h4>无法识别植物，只能识别病虫害</h4>
+                <p>目前仅能识别病害，缺乏植物主体识别能力。用户不知道“是什么树病了”，体验割裂。</p>
+            </div>
+        </div>
+
+        <!-- Problem 2 -->
+        <div class="prob-row">
+            <div class="prob-num">2</div>
+            <div class="prob-text">
+                <h4>病虫害识别时间长、准确度低</h4>
+                <p>端侧推理耗时过长。且极易将“缺水症状”误判为“病毒感染”，导致错误救治。</p>
+            </div>
+        </div>
+
+        <!-- Problem 3 -->
+        <div class="prob-row">
+            <div class="prob-num">3</div>
+            <div class="prob-text">
+                <h4>病虫害区域标注不准确</h4>
+                <p>Bounding Box 经常发生漂移，或者粗暴地框选了整株植物，无法精确定位病灶。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: Requirements -->
+<div class="slide-container">
+    <div class="slide-header">
+        <div class="slide-title">6. 合作需求与指标</div>
         <div class="slide-index">06</div>
     </div>
     <div class="content-area">
-        <div class="card card-tech">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:40px;">
-                <div>
-                    <h3><i class="fa-solid fa-code-commit"></i> 核心任务 (Scope of Work)</h3>
-                    <ul style="font-size:16px;">
-                        <li style="margin-bottom:10px;"><strong>数据增强与清洗：</strong> 针对 Top 300 核心植物及 50 种常见病害，建立高质量训练集（需覆盖不同光照、生长阶段）。</li>
-                        <li style="margin-bottom:10px;"><strong>轻量化模型定制：</strong> 提供针对移动端 (iOS CoreML / Android TFLite) 优化的模型。</li>
-                        <li><strong>Corner Case 优化：</strong> 解决相似病害混淆、非植物误识别等边界问题。</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3><i class="fa-solid fa-ruler-combined"></i> 性能验收指标 (KPIs)</h3>
-                    <table class="compare-table" style="font-size:14px;">
-                        <tr>
-                            <td><strong>识别精度 (Top-1)</strong></td>
-                            <td style="color:var(--accent-color); font-weight:bold;">> 95%</td>
-                            <td>针对 Top 300 核心库</td>
-                        </tr>
-                        <tr>
-                            <td><strong>病害检测 (mAP)</strong></td>
-                            <td style="color:var(--accent-color); font-weight:bold;">> 0.85</td>
-                            <td>IoU=0.5</td>
-                        </tr>
-                        <tr>
-                            <td><strong>推理耗时 (Latency)</strong></td>
-                            <td style="color:var(--tech-blue); font-weight:bold;">< 150ms</td>
-                            <td>中端机型 (iPhone 11)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>模型体积 (Size)</strong></td>
-                            <td style="color:var(--tech-blue); font-weight:bold;">< 25MB</td>
-                            <td>便于 App 离线包分发</td>
-                        </tr>
-                    </table>
-                </div>
+        <div class="grid-2">
+            <div class="card border-left-secondary">
+                <h3><i class="fa-solid fa-code-branch" style="color: var(--secondary)"></i> 合作任务需求</h3>
+                <ul style="display:flex; flex-direction:column; gap:32px; margin-top:10px; list-style: none;">
+                    <li>
+                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">全能识别模型 (Omni-Model)</strong>
+                        <span style="font-size: 20px;">支持植物/花草/蘑菇混合识别。单次推理同时输出 ID 与 病害。</span>
+                    </li>
+                    <li>
+                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">单叶片精细诊断</strong>
+                        <span style="font-size: 20px;">仅凭单张叶片特写，准确识别植物种类并定位微小病灶。</span>
+                    </li>
+                    <li>
+                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">分层建议匹配</strong>
+                        <span style="font-size: 20px;">算法需输出病害严重等级，以便匹配“家庭偏方”或“专业药剂”。</span>
+                    </li>
+                </ul>
+            </div>
             
+            <div class="card border-left-primary">
+                <h3><i class="fa-solid fa-flag-checkered" style="color: var(--primary)"></i> 优化目标</h3>
+                <div style="display:flex; flex-direction:column; gap:24px; margin-top:10px;">
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size:22px; font-weight: 700; color:var(--primary); margin-bottom:6px;">目标 1: 功能完备性</div>
+                        <div style="font-size: 20px;">植物 ID 识别率 > 95%，病害诊断逻辑自洽。</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size:22px; font-weight: 700; color:var(--secondary); margin-bottom:6px;">目标 2: 响应速度</div>
+                        <div style="font-size: 20px;">中端机型上，全流程耗时达到“秒开”级别。</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size:22px; font-weight: 700; color:var(--danger); margin-bottom:6px;">目标 3: 标注精准度</div>
+                        <div style="font-size: 20px;">IoU 显著提升，病灶定位精准，无明显漂移。</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
