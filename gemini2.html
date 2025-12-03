@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物识别产品：数据分析 & 需求</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 1. SETUP & THEME */
+        * { box-sizing: border-box; }
+        
+        body {
+            background-color: #1a1a1a;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px 0;
+            place-items: center;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #f1f5f9;
+        }
+
+        .slide-container {
+            background-color: #0f172a; /* Dark Blue-Grey Background */
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            height: 720px;
+            overflow: hidden;
+            padding: 50px 60px;
+            position: relative;
+            width: 1280px;
+            border: 1px solid #334155;
+        }
+
+        /* 颜色定义：兼顾商业与技术感 */
+        :root {
+            --accent-color: #4ade80;    /* Plant Green */
+            --tech-blue: #38bdf8;       /* Tech Blue */
+            --danger-color: #f87171;    /* Alert Red */
+            --warning-color: #fbbf24;
+            --bg-card: #1e293b;
+            --text-muted: #94a3b8;
+        }
+
+        /* 2. TYPOGRAPHY */
+        h1, h2, h3 {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        h1 { font-size: 56px; line-height: 1.1; color: #fff; }
+        h1 span { color: var(--accent-color); }
+        
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slide-index {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.1);
+            position: absolute;
+            right: 40px;
+            top: 30px;
+        }
+
+        p, li {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        /* 3. LAYOUT COMPONENTS */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; height: 100%; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; height: 100%; }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .card h3 {
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .card-highlight { border-top: 4px solid var(--accent-color); }
+        .card-tech { border-top: 4px solid var(--tech-blue); }
+        .card-alert { border-top: 4px solid var(--danger-color); }
+
+        /* Data Visualization Styles */
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-val { font-family: 'Urbanist', sans-serif; font-weight: bold; font-size: 20px; color: var(--accent-color); }
+        
+        /* Table Styles */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .compare-table th { text-align: left; color: var(--text-muted); padding: 10px; font-size: 16px; border-bottom: 1px solid #475569; }
+        .compare-table td { padding: 15px 10px; border-bottom: 1px solid #334155; font-size: 16px; }
+        
+        /* Tags */
+        .tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .tag-market { background: rgba(74, 222, 128, 0.2); color: var(--accent-color); }
+        .tag-tech { background: rgba(56, 189, 248, 0.2); color: var(--tech-blue); }
+
+        /* Gap Bar */
+        .gap-container { margin-top: 20px; }
+        .gap-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .progress-bg { background: #334155; height: 10px; border-radius: 5px; position: relative; }
+        .progress-fill { background: var(--danger-color); height: 100%; border-radius: 5px; position: absolute; left: 0; top: 0; }
+        .progress-target { position: absolute; right: 0; top: -5px; width: 4px; height: 20px; background: var(--accent-color); z-index: 2; }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: 封面 -->
+<div class="slide-container" id="slide1">
+    <div style="display:flex; flex-direction:column; justify-content:center; height:100%; padding-left:40px;">
+        <div style="font-family: 'Urbanist', sans-serif; color: var(--tech-blue); font-size: 18px; letter-spacing: 2px; margin-bottom: 20px;">AI MODEL PARTNERSHIP PROPOSAL</div>
+        <h1>植物识别产品<br><span>数据分析 & 需求</span></h1>
+        <p style="font-size: 24px; color: var(--text-muted); margin-top: 20px; max-width: 800px;">
+            基于市场机会分析、核心差异化定位及 AI 技术指标定义
+        </p>
+        <div style="margin-top: 60px; display: flex; gap: 20px;">
+            <span class="tag tag-market">Market Insight</span>
+            <span class="tag tag-tech">Technical Specs</span>
+            <span class="tag tag-market">Product Strategy</span>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 2: 市场格局与定位 (对应第1点) -->
+<div class="slide-container" id="slide2">
+    <div class="slide-header">
+        <div class="slide-title">1. 市场格局与竞品定位</div>
+        <div class="slide-index">01</div>
+    </div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div class="card card-highlight">
+                <h3><i class="fa-solid fa-chart-line"></i> 收入与梯队 (Revenue Tier)</h3>
+                <div class="stat-box">
+                    <span>PictureThis (Leader)</span>
+                    <span class="stat-val">$90k+ / day</span>
+                </div>
+                <div class="stat-box">
+                    <span>Plantin (Challenger)</span>
+                    <span class="stat-val">$35k+ / day</span>
+                </div>
+                <div class="stat-box">
+                    <span>Plant Parent (Niche)</span>
+                    <span class="stat-val">$6.6k+ / day</span>
+                </div>
+                <p style="margin-top:15px; font-size:16px; color:#cbd5e1;">
+                    <strong>结论：</strong> 市场头部效应明显，但垂直细分领域（如 Plant Parent 的养护方向）仍有稳定的变现能力。
+                </p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-map-pin"></i> 竞品定位差异</h3>
+                <ul style="margin-top:10px;">
+                    <li style="margin-bottom:15px;">
+                        <strong>PictureThis:</strong> <span style="color:var(--accent-color)">全能百科</span><br>
+                        大而全，识别库庞大，流量入口，定位于“什么都能扫”。
+                    </li>
+                    <li style="margin-bottom:15px;">
+                        <strong>Plantin:</strong> <span style="color:var(--tech-blue)">智能管家</span><br>
+                        强调“诊断”与“照料”，功能更偏向工具属性，而非单纯的知识科普。
+                    </li>
+                    <li>
+                        <strong>我们的切入机会:</strong><br>
+                        针对 45+ 高龄用户，做<strong>“极简操作 + 专精诊断”</strong>的垂直工具。
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: 竞品功能结构 (对应第2点) -->
+<div class="slide-container" id="slide3">
+    <div class="slide-header">
+        <div class="slide-title">2. 竞品功能结构与差异比较</div>
+        <div class="slide-index">02</div>
+    </div>
+    <div class="content-area">
+        <div class="card card-tech">
+            <h3>功能模块横向对比</h3>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th width="20%">功能模块</th>
+                        <th width="40%">竞品主流方案 (Competitors)</th>
+                        <th width="40%">我们的差异化策略 (Strategy)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color:#fff; font-weight:bold;">核心识别</td>
+                        <td>
+                            植物ID与病害诊断通常分离，需手动切换模式。<br>
+                            <span style="font-size:14px; color:#f87171;">痛点：流程割裂，操作复杂。</span>
+                        </td>
+                        <td>
+                            <strong>Auto-Detect Mode:</strong><br>
+                            一次扫描，同时输出植物名称与健康状态（自动判断是否健康）。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color:#fff; font-weight:bold;">养护工具</td>
+                        <td>
+                            基于规则的简单提醒（几天浇一次水），缺乏环境感知。
+                        </td>
+                        <td>
+                            <strong>传感器工具箱 (Toolkit):</strong><br>
+                            利用手机传感器开发“光照计”、“AI 浇水计算器”等实用工具。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color:#fff; font-weight:bold;">内容展示</td>
+                        <td>
+                            静态百科全书，文字密集。
+                        </td>
+                        <td>
+                            <strong>结构化诊断卡片:</strong><br>
+                            类似“体检报告”，重点展示：严重程度、是否传染、处理步骤。
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: 核心能力界定 (对应第3点) -->
+<div class="slide-container" id="slide4">
+    <div class="slide-header">
+        <div class="slide-title">3. 核心识别能力: US Top 300 & 病害</div>
+        <div class="slide-index">03</div>
+    </div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div class="card card-highlight">
+                <h3><i class="fa-solid fa-list-ol"></i> US Top 300 重点植物分类</h3>
+                <p style="font-size:16px; margin-bottom:15px;">
+                    无需追求 10000+ 种全库，优先攻克美国市场最高频的 <strong>Top 300 (覆盖 80% 场景)</strong>：
+                </p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
+                        <strong style="color:var(--accent-color)">1. Fruits & Veg</strong><br>
+                        <span style="font-size:14px;">番茄、辣椒、柠檬 (Kitchen Garden刚需)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
+                        <strong style="color:var(--accent-color)">2. Houseplants</strong><br>
+                        <span style="font-size:14px;">龟背竹、绿萝、多肉 (室内高频)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
+                        <strong style="color:var(--accent-color)">3. Weeds</strong><br>
+                        <span style="font-size:14px;">蒲公英、马唐 (庭院除草需求)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:6px;">
+                        <strong style="color:var(--accent-color)">4. Toxic</strong><br>
+                        <span style="font-size:14px;">常春藤、夹竹桃 (宠物安全预警)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-tech">
+                <h3><i class="fa-solid fa-virus"></i> 病害诊断核心能力要求</h3>
+                <ul style="margin-top:10px;">
+                    <li style="margin-bottom:15px;">
+                        <strong>区分物理 vs 病理:</strong><br>
+                        模型需能区分“叶片自然破损/老化”与“真菌感染/虫害”。竞品常将物理破损误报为病害。
+                    </li>
+                    <li style="margin-bottom:15px;">
+                        <strong>视觉定位 (Bounding Box):</strong><br>
+                        不只是输出结果，必须在图上<strong>精准框选</strong>病灶位置，建立信任感。
+                    </li>
+                    <li>
+                        <strong>严重程度分级:</strong><br>
+                        输出 <span style="color:#fbbf24">Warning (轻微)</span> 或 <span style="color:#f87171">Critical (严重)</span> 标签。
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: 产品定位与切入点 (对应第4点) -->
+<div class="slide-container" id="slide5">
+    <div class="slide-header">
+        <div class="slide-title">4. 产品定位与切入点</div>
+        <div class="slide-index">04</div>
+    </div>
+    <div class="content-area">
+        <div class="grid-3">
+            <div class="card">
+                <h3><i class="fa-solid fa-bullseye" style="color:var(--accent-color)"></i> 定位 (Positioning)</h3>
+                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"家庭园艺的高级诊断工具"</p>
+                <p style="font-size:16px;">
+                    避开 PictureThis 的“全能百科”锋芒，做深“诊断”和“工具”属性。
+                </p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-user-group" style="color:var(--tech-blue)"></i> 切入点 (Target)</h3>
+                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"适老化 & 极简设计"</p>
+                <p style="font-size:16px;">
+                    针对 45+ 核心付费人群，设计大字体、高对比度、线性操作流程，降低使用门槛。
+                </p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-toolbox" style="color:#fbbf24"></i> 特色功能 (Features)</h3>
+                <p style="font-size:20px; font-weight:bold; margin:20px 0;">"Toolkit 工具箱"</p>
+                <p style="font-size:16px;">
+                    利用光照计、水量计算器等高频小工具，解决“没病害时就不打开 App”的留存难题。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 6: 原型评估与差距 (对应第5点) -->
+<div class="slide-container" id="slide6">
+    <div class="slide-header">
+        <div class="slide-title">5. 现有原型评估与竞品差距</div>
+        <div class="slide-index">05</div>
+    </div>
+    <div class="content-area">
+        <div class="grid-2">
+            <div class="card card-alert">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> 现有原型 GAP 分析</h3>
+                
+                <div class="gap-container">
+                    <div class="gap-label">
+                        <span>病害识别准确率 (Accuracy)</span>
+                        <span style="color:var(--danger-color)">Current: 60%</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: 60%;"></div>
+                        <div class="progress-target" style="left: 90%;" title="Target: 90%"></div>
+                    </div>
+                    <div style="text-align:right; font-size:12px; color:var(--accent-color); margin-top:5px;">Target: 90%</div>
+                </div>
+
+                <div class="gap-container">
+                    <div class="gap-label">
+                        <span>病灶标注偏移 (IoU)</span>
+                        <span style="color:var(--danger-color)">Current: Poor</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width: 40%;"></div>
+                        <div class="progress-target" style="left: 85%;" title="Target: 0.85"></div>
+                    </div>
+                    <div style="text-align:right; font-size:12px; color:var(--accent-color); margin-top:5px;">Target: IoU > 0.85</div>
+                </div>
+
+                <div style="margin-top:30px; border-top:1px solid #334155; padding-top:20px;">
+                    <p><strong>主要问题：</strong></p>
+                    <ul style="font-size:16px;">
+                        <li>无法区分“缺水黄叶”与“病毒黄叶”。</li>
+                        <li>微距拍摄时无法对焦，且无模糊检测提示。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fa-solid fa-magnifying-glass-chart"></i> 竞品表现参考</h3>
+                <p><strong>Plantin / PictureThis 优势：</strong></p>
+                <ul style="font-size:16px; margin-top:10px;">
+                    <li><strong>置信度过滤：</strong> 当识别结果不确定时，会引导用户重拍或展示Top-3选项，而不是强行给出一个错误结果。</li>
+                    <li><strong>多角度融合：</strong> 支持上传叶片、花朵、树干多张图进行综合判断。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: AI 团队需求 (对应第6点) -->
+<div class="slide-container" id="slide7">
+    <div class="slide-header">
+        <div class="slide-title">6. 需求与指标</div>
+        <div class="slide-index">06</div>
+    </div>
+    <div class="content-area">
+        <div class="card card-tech">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:40px;">
+                <div>
+                    <h3><i class="fa-solid fa-code-commit"></i> 核心任务 (Scope of Work)</h3>
+                    <ul style="font-size:16px;">
+                        <li style="margin-bottom:10px;"><strong>数据增强与清洗：</strong> 针对 Top 300 核心植物及 50 种常见病害，建立高质量训练集（需覆盖不同光照、生长阶段）。</li>
+                        <li style="margin-bottom:10px;"><strong>轻量化模型定制：</strong> 提供针对移动端 (iOS CoreML / Android TFLite) 优化的模型。</li>
+                        <li><strong>Corner Case 优化：</strong> 解决相似病害混淆、非植物误识别等边界问题。</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3><i class="fa-solid fa-ruler-combined"></i> 性能验收指标 (KPIs)</h3>
+                    <table class="compare-table" style="font-size:14px;">
+                        <tr>
+                            <td><strong>识别精度 (Top-1)</strong></td>
+                            <td style="color:var(--accent-color); font-weight:bold;">> 95%</td>
+                            <td>针对 Top 300 核心库</td>
+                        </tr>
+                        <tr>
+                            <td><strong>病害检测 (mAP)</strong></td>
+                            <td style="color:var(--accent-color); font-weight:bold;">> 0.85</td>
+                            <td>IoU=0.5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>推理耗时 (Latency)</strong></td>
+                            <td style="color:var(--tech-blue); font-weight:bold;">< 150ms</td>
+                            <td>中端机型 (iPhone 11)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>模型体积 (Size)</strong></td>
+                            <td style="color:var(--tech-blue); font-weight:bold;">< 25MB</td>
+                            <td>便于 App 离线包分发</td>
+                        </tr>
+                    </table>
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
