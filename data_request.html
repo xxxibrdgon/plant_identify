@@ -3,584 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>植物识别产品：合作需求方案 (v14)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Urbanist:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>植物识别产品规划看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. 全局变量与重置 --- */
-        :root {
-            /* 品牌色 */
-            --primary: #00E676;      
-            --secondary: #2979FF;    
-            --tertiary: #D500F9;     
-            --accent: #FFD600;       
-            --danger: #FF5252;       
-            
-            /* 背景色体系 */
-            --bg-body: #050505;
-            --bg-slide: #121212;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --bg-card-hover: rgba(255, 255, 255, 0.06);
-            
-            /* 文本色 */
-            --text-main: #ffffff;
-            --text-sub: #d0d0d0; 
-            --text-dim: #888888;
-
-            /* 阴影与边框 */
-            --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            --border-light: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
-            background-color: var(--bg-body);
             font-family: 'Noto Sans SC', sans-serif;
-            color: var(--text-main);
+            background-color: #f8fafc;
+        }
+        /* 侧边栏样式 */
+        .sidebar-item {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        .sidebar-item.active {
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #047857; /* emerald-700 */
+            font-weight: 700;
+            border-left: 4px solid #10b981;
+        }
+        .sidebar-item:hover:not(.active) {
+            background-color: #f1f5f9;
+        }
+
+        /* 内容区切换动画 */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 卡片悬停效果 */
+        .hover-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 章节分割线 */
+        .section-divider {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 60px;
-            padding: 60px 20px;
-            min-height: 100vh;
-        }
-
-        /* --- 2. 幻灯片容器 --- */
-        .slide-container {
-            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
-            width: 1280px;
-            height: 720px; 
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            border: var(--border-light);
-            padding: 48px 64px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex-shrink: 0; 
-        }
-
-        /* 响应式缩放 */
-        @media (max-width: 1300px) { body { zoom: 0.8; } }
-        @media (max-width: 1000px) { body { zoom: 0.6; } }
-
-        /* --- 3. 排版体系 (加大字号) --- */
-        h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.02em; }
-        
-        h1 { font-size: 76px; line-height: 1.1; margin-bottom: 24px; } 
-        h1 span { 
-            background: linear-gradient(90deg, var(--primary), #69F0AE); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-
-        h3 { font-size: 30px; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 14px; } 
-        h3 i { color: var(--text-sub); font-size: 0.9em; }
-
-        /* 全局正文加大 */
-        p, li, td {
-            font-size: 22px; 
-            line-height: 1.5;
-            color: var(--text-sub);
-        }
-
-        strong { color: var(--text-main); font-weight: 700; }
-
-        .tag {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 100px;
-            background: rgba(255,255,255,0.1);
-            font-size: 16px; 
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            margin: 3rem 0 2rem 0;
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: var(--text-main);
-            border: 1px solid rgba(255,255,255,0.1);
         }
-
-        /* --- 4. 头部设计 --- */
-        .slide-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 24px; 
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        .section-divider::before, .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e2e8f0;
         }
-
-        .slide-title { font-size: 42px; font-weight: 700; color: var(--text-main); } 
-        .slide-index { font-family: 'Urbanist', sans-serif; font-size: 64px; color: rgba(255,255,255,0.05); font-weight: 900; line-height: 0.8; }
-
-        /* --- 5. 布局网格 --- */
-        .content-area { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; justify-content: flex-start; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; height: 100%; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; height: 100%; }
-        .grid-1-2 { display: grid; grid-template-columns: 380px 1fr; gap: 50px; height: 100%; }
-
-        /* --- 6. 卡片组件 --- */
-        .card {
-            background: var(--bg-card);
-            border: var(--border-light);
-            border-radius: 16px;
-            padding: 28px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .card.no-bg { background: transparent; border: none; padding: 0; box-shadow: none; backdrop-filter: none; }
-
-        .border-left-primary { border-left: 5px solid var(--primary); }
-        .border-left-secondary { border-left: 5px solid var(--secondary); }
-        .border-left-danger { border-left: 5px solid var(--danger); }
-        .border-left-accent { border-left: 5px solid var(--accent); }
-
-        /* --- 7. 特殊组件样式 --- */
-
-        /* 营收列表 (无进度条版) */
-        .rev-list { display: flex; flex-direction: column; gap: 20px; }
-        .rev-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .rev-item:last-child { border-bottom: none; padding-bottom: 0; }
-        
-        .rev-rank { 
-            font-family: 'Urbanist', sans-serif; 
-            font-size: 32px; 
-            font-weight: 800; 
-            color: rgba(255,255,255,0.1); 
-            margin-right: 20px;
-            width: 40px;
-        }
-        .rev-name { font-size: 24px; font-weight: 700; color: var(--text-main); }
-        .rev-val { font-family: 'Urbanist', sans-serif; font-size: 28px; font-weight: 700; color: var(--primary); text-align: right; }
-
-        /* 表格 */
-        .vs-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        .vs-table th { text-align: left; color: var(--text-dim); font-size: 18px; font-weight: 600; uppercase; padding: 0 20px 8px 20px; letter-spacing: 1px; }
-        .vs-table td { background: rgba(255,255,255,0.03); padding: 24px 20px; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; font-size: 20px;}
-        .vs-table tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid rgba(255,255,255,0.05); color: var(--text-main); font-weight: 700; font-size: 22px;}
-        .vs-table tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid rgba(255,255,255,0.05); }
-        
-        .vs-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: #fff; }
-
-        /* 策略方块 - 优化对齐 */
-        .strat-box {
-            background: rgba(255,255,255,0.03); 
-            padding: 24px; 
-            border-radius: 12px; 
-            margin-bottom: 20px;
-            display: flex; 
-            align-items: center; /* 垂直居中 */
-            gap: 20px; 
-            border: 1px solid rgba(255,255,255,0.05);
-            min-height: 120px; 
-        }
-        .strat-icon { 
-            font-size: 42px; 
-            width: 50px; 
-            text-align: center; 
-            flex-shrink: 0; 
-            line-height: 1;
-        }
-        /* 强制单行并加省略号 (保险起见), 或者允许换行但高度足够 */
-        .strat-title { 
-            font-size: 21px; /* 稍微调小一点点确保安全 */
-            font-weight: 700; 
-            color: var(--text-main); 
-            margin-bottom: 6px; 
-            white-space: nowrap; /* 强制不换行，保持对齐 */
-        }
-        .strat-desc { font-size: 18px; line-height: 1.4; opacity: 0.9; }
-
-        /* 问题列表 */
-        .prob-row {
-            background: linear-gradient(90deg, rgba(255, 82, 82, 0.1) 0%, rgba(255, 82, 82, 0.02) 100%);
-            border-left: 6px solid var(--danger);
-            padding: 24px 32px;
-            margin-bottom: 20px;
-            border-radius: 0 12px 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-        .prob-num { font-family: 'Urbanist', monospace; font-size: 64px; font-weight: 800; color: var(--danger); opacity: 0.5; width: 50px; text-align: center; line-height: 1;}
-        .prob-text h4 { font-size: 26px; margin-bottom: 8px; color: var(--text-main); }
-        .prob-text p { font-size: 22px; color: var(--text-sub); margin: 0; opacity: 0.9; }
-
-        /* 图标网格 (Slide 5) */
-        .icon-grid-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 24px 16px;
-            border-radius: 12px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .icon-grid-item i { font-size: 40px; margin-bottom: 8px; }
-        .icon-grid-item .title { font-size: 22px; font-weight: 700; color: var(--text-main); }
-        .icon-grid-item .desc { font-size: 18px; color: var(--text-sub); }
-
+        .section-divider::before { margin-right: 1rem; }
+        .section-divider::after { margin-left: 1rem; }
     </style>
 </head>
-<body>
+<body class="h-screen flex overflow-hidden text-slate-800 bg-slate-50">
 
-<!-- Slide 1: Cover -->
-<div class="slide-container" style="justify-content: center;">
-    <div style="padding: 0 40px;">
-        <div style="font-family:'Urbanist'; color:var(--primary); font-size:20px; letter-spacing:4px; margin-bottom:24px; font-weight:800; opacity: 0.9;">PROJECT: PLANT ID</div>
-        <h1>植物识别产品<br><span>合作需求方案</span></h1>
-        <p style="font-size:32px; color:var(--text-sub); margin-top:40px; max-width:900px; border-left:6px solid var(--primary); padding-left:32px; line-height:1.4;">
-            基于市场机会、核心差异化策略及关键技术改进指标
-        </p>
-        <div style="margin-top:80px; display:flex; gap:20px;">
-            <span class="tag">Market Analysis</span>
-            <span class="tag">Product Strategy</span>
-            <span class="tag">Tech Specs</span>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 z-20 shadow-xl">
+        <div class="p-6 border-b border-slate-100 bg-emerald-50/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                    <i class="fa-solid fa-leaf text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight text-slate-800">植物识别规划</h1>
+                    <p class="text-xs text-slate-500 font-medium">Market Analysis & PRD</p>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- Decorative Circle -->
-    <div style="position: absolute; right: -100px; bottom: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,230,118,0.05) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none;"></div>
-</div>
+        
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+            <div class="px-3 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Analysis</div>
+            <button onclick="switchTab('section-market')" id="nav-section-market" class="sidebar-item active w-full text-left px-4 py-3 flex items-center gap-3">
+                <span class="w-6 text-center"><i class="fa-solid fa-chart-pie"></i></span> 市场与定位
+            </button>
+            <button onclick="switchTab('section-competitor')" id="nav-section-competitor" class="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3">
+                <span class="w-6 text-center"><i class="fa-solid fa-scale-balanced"></i></span> 竞品深挖
+            </button>
+            
+            <div class="px-3 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Strategy</div>
+            <button onclick="switchTab('section-strategy')" id="nav-section-strategy" class="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3 text-emerald-700 bg-emerald-50/50">
+                <span class="w-6 text-center"><i class="fa-solid fa-star"></i></span> <strong>核心切入点</strong>
+            </button>
+            
+            <div class="px-3 py-2 mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Execution</div>
+            <button onclick="switchTab('section-tech')" id="nav-section-tech" class="sidebar-item w-full text-left px-4 py-3 flex items-center gap-3">
+                <span class="w-6 text-center"><i class="fa-solid fa-road"></i></span> 执行路径
+            </button>
+        </nav>
+    </aside>
 
-<!-- Slide 2: Market -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">1. 市场格局与竞品定位</div>
-        <div class="slide-index">01</div>
-    </div>
-    <div class="content-area">
-        <div class="grid-1-2">
-            <!-- Left: Revenue Chart (Updated: Card Style, No Bars) -->
-            <div class="card border-left-primary">
-                <h3 style="margin-bottom:32px;"><i class="fa-solid fa-trophy" style="color:var(--accent)"></i> 营收排行榜 (Daily)</h3>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-hidden relative bg-slate-100">
+        <!-- 增加底部 padding 防止内容贴底 -->
+        <div class="h-full overflow-y-auto p-8 md:p-12 pb-40 scroll-smooth">
+            
+            <!-- SECTION 1: Market & Positioning (Part 1 + Part 2) -->
+            <section id="section-market" class="content-section active max-w-6xl mx-auto">
                 
-                <div class="rev-list">
-                    <div class="rev-item">
-                        <div style="display: flex; align-items: center;">
-                            <div class="rev-rank">01</div>
-                            <div class="rev-name">PictureThis</div>
+                <!-- Part 1 Content -->
+                <div class="mb-12">
+                    <div class="mb-8 border-l-4 border-emerald-500 pl-4">
+                        <span class="text-emerald-600 font-bold text-sm uppercase tracking-wider">Part 1</span>
+                        <h2 class="text-3xl font-black text-slate-800">市场格局</h2>
+                        <p class="text-slate-500 mt-1">头部产品营收梯队分布与现状</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- PictureThis -->
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover-card">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold text-slate-800">PictureThis</h3>
+                                    <i class="fa-solid fa-crown text-emerald-500 text-xl"></i>
+                                </div>
+                                <div class="text-3xl font-black text-emerald-600 mb-2">$9w+ <span class="text-sm font-normal text-slate-400">/日(iOS US)</span></div>
+                                <p class="text-sm text-slate-600 bg-emerald-50 p-2 rounded inline-block">绝对统治地位，体量最大</p>
+                            </div>
                         </div>
-                        <div class="rev-val" style="color:var(--primary)">$90k+</div>
-                    </div>
-
-                    <div class="rev-item">
-                        <div style="display: flex; align-items: center;">
-                            <div class="rev-rank">02</div>
-                            <div class="rev-name">Plantin</div>
+                        <!-- Plantin -->
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover-card">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold text-slate-800">Plantin</h3>
+                                    <i class="fa-solid fa-bolt text-blue-500 text-xl"></i>
+                                </div>
+                                <div class="text-3xl font-black text-blue-600 mb-2">$3.5w <span class="text-sm font-normal text-slate-400">/日</span></div>
+                                <p class="text-sm text-slate-600 bg-blue-50 p-2 rounded inline-block">第二梯队，面临增长挑战</p>
+                            </div>
                         </div>
-                        <div class="rev-val" style="color:var(--secondary)">$35k+</div>
-                    </div>
-
-                    <div class="rev-item">
-                        <div style="display: flex; align-items: center;">
-                            <div class="rev-rank">03</div>
-                            <div class="rev-name">Plant Parent</div>
+                        <!-- Others -->
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover-card">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-xl font-bold text-slate-800">Others</h3>
+                                    <i class="fa-solid fa-layer-group text-slate-400 text-xl"></i>
+                                </div>
+                                <div class="text-3xl font-black text-slate-400 mb-2">&lt; $1w</div>
+                                <p class="text-sm text-slate-500">Plant Parent, Plantum 等，仍需努力。</p>
+                            </div>
                         </div>
-                        <div class="rev-val" style="color:var(--tertiary)">$6.6k</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right: Positioning -->
-            <div class="card border-left-secondary">
-                <h3><i class="fa-solid fa-map-pin" style="color: var(--secondary)"></i> 竞品定位差异</h3>
-                <div style="display:flex; flex-direction:column; gap:36px; padding-top: 10px;">
+                <div class="section-divider">Strategy Positioning</div>
+
+                <!-- Part 2 Content -->
+                <div>
+                    <div class="mb-8 border-l-4 border-blue-500 pl-4">
+                        <span class="text-blue-600 font-bold text-sm uppercase tracking-wider">Part 2</span>
+                        <h2 class="text-3xl font-black text-slate-800">竞品定位</h2>
+                        <p class="text-slate-500 mt-1">核心价值主张差异对比</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- PT -->
+                        <div class="bg-white rounded-2xl p-8 shadow-sm border-t-8 border-emerald-500 hover-card">
+                            <div class="flex items-center gap-3 mb-6">
+                                <span class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-book-open"></i></span>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-slate-800">PictureThis</h3>
+                                    <span class="text-emerald-600 text-sm font-bold">百科全书</span>
+                                </div>
+                            </div>
+                            <ul class="space-y-4 text-slate-600">
+                                <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> 兼顾植物科普和植物养护</li>
+                                <li class="bg-slate-50 p-4 rounded-xl italic font-medium text-slate-700 border-l-4 border-emerald-300">“这是什么？” “怎么养好？”</li>
+                            </ul>
+                        </div>
+
+                        <!-- Plantin -->
+                        <div class="bg-white rounded-2xl p-8 shadow-sm border-t-8 border-blue-500 hover-card">
+                            <div class="flex items-center gap-3 mb-6">
+                                <span class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl"><i class="fa-solid fa-user-check"></i></span>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-slate-800">Plantin</h3>
+                                    <span class="text-blue-600 text-sm font-bold">植物管家</span>
+                                </div>
+                            </div>
+                            <ul class="space-y-4 text-slate-600">
+                                <li class="flex gap-2"><i class="fa-solid fa-check text-blue-500 mt-1"></i> 识别略逊于竞品，更强调陪伴</li>
+                                <li class="bg-slate-50 p-4 rounded-xl italic font-medium text-slate-700 border-l-4 border-blue-300">“怎么养活？”</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Competitor Deep Dive (Part 3) -->
+            <section id="section-competitor" class="content-section max-w-6xl mx-auto">
+                <div class="mb-8 border-l-4 border-purple-500 pl-4">
+                    <span class="text-purple-600 font-bold text-sm uppercase tracking-wider">Part 3</span>
+                    <h2 class="text-3xl font-black text-slate-800">竞品优缺深挖</h2>
+                    <p class="text-slate-500 mt-1">功能体验与变现逻辑详解</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- PictureThis -->
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                        <div class="bg-emerald-600 px-6 py-4 flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">PictureThis</h3>
+                            <span class="bg-white/20 text-white px-2 py-1 rounded text-xs">Benchmark</span>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-emerald-700 mb-3 flex items-center gap-2 text-sm uppercase tracking-wide"><i class="fa-solid fa-thumbs-up"></i> 核心优势</h4>
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>识别性能好</strong>：准确率高，速度快，多种植物统一入口。</li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>心理模型</strong>：结果页首屏展示“生死攸关”信息（毒性、光照）。</li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>人文关怀</strong>：包含花语、起名历史等内容。</li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-500 mt-1"></i> <strong>闭环完整</strong>：识别 -> 养护。
+                                        <div class="text-xs text-slate-500 mt-1 ml-5 bg-slate-50 p-2 rounded">
+                                            • 工具箱：光照计、施肥提醒<br>
+                                            • My Garden：<strong>生长时光轴</strong>，增加沉没成本
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100">
+                                <h4 class="font-bold text-red-500 mb-2 flex items-center gap-2 text-sm uppercase tracking-wide"><i class="fa-solid fa-circle-exclamation"></i> 待优化</h4>
+                                <p class="text-sm text-slate-600"><strong>入口割裂</strong>：识别(ID)和诊断(Diagnosis)分开，识别发现病害无法直接指出。</p>
+                            </div>
+                            <div class="bg-emerald-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-emerald-800 text-xs mb-2 uppercase">变现引导</h4>
+                                <ul class="text-xs text-emerald-900 list-disc pl-4 space-y-1">
+                                    <li>付费解锁详细指南、无限识别。</li>
+                                    <li>新用户首次进入强引导。</li>
+                                    <li>免费试用中仍锁定部分服务(Plant Advice)。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plantin -->
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                        <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">Plantin</h3>
+                            <span class="bg-white/20 text-white px-2 py-1 rounded text-xs">Challenger</span>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <h4 class="font-bold text-blue-700 mb-3 flex items-center gap-2 text-sm uppercase tracking-wide"><i class="fa-solid fa-thumbs-up"></i> 核心优势</h4>
+                                <ul class="space-y-3 text-sm text-slate-700">
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-blue-500 mt-1"></i> <strong>定位差异</strong>：首页默认 My Garden，强调“管家”。</li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-blue-500 mt-1"></i> <strong>社区粘性</strong>：内置问答社区，UGC丰富。</li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-blue-500 mt-1"></i> <strong>咨询分层</strong>：
+                                        <div class="text-xs text-slate-500 mt-1 ml-5 bg-slate-50 p-2 rounded">
+                                            • AI诊断：快/便宜<br>
+                                            • 专家咨询：准/贵
+                                        </div>
+                                    </li>
+                                    <li class="flex gap-2"><i class="fa-solid fa-check text-blue-500 mt-1"></i> <strong>AR识别</strong>：科技感强，引流利器。</li>
+                                </ul>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100">
+                                <h4 class="font-bold text-red-500 mb-2 flex items-center gap-2 text-sm uppercase tracking-wide"><i class="fa-solid fa-circle-exclamation"></i> 待优化</h4>
+                                <ul class="text-sm text-slate-600 list-disc pl-4">
+                                    <li>功能布局稍乱。</li>
+                                    <li>结果页信息参数化，缺乏温度。</li>
+                                </ul>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-800 text-xs mb-2 uppercase">变现引导</h4>
+                                <ul class="text-xs text-blue-900 list-disc pl-4 space-y-1">
+                                    <li><strong>终身订阅</strong>，吸引冲动消费。</li>
+                                    <li>限时折扣倒计时，<strong>卡片做得非常可爱</strong>。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Strategy (Part 4) -->
+            <section id="section-strategy" class="content-section max-w-6xl mx-auto">
+                <div class="mb-8 text-center">
+                    <span class="text-amber-500 font-bold text-xs uppercase tracking-[0.2em]">Part 4</span>
+                    <h2 class="text-4xl font-black text-slate-800 mt-2">核心切入点</h2>
+                    <div class="mt-2 inline-block bg-white px-4 py-1 rounded-full border border-slate-200 text-sm text-slate-500">
+                        Target: <span class="font-bold text-slate-800">35+ 女性用户</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 1 -->
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border-t-4 border-purple-500 hover-card">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 text-2xl mb-4"><i class="fa-solid fa-expand"></i></div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-3">1. 全能扫描 (One-Scan)</h3>
+                        <p class="text-sm text-slate-600">识别植物的同时进行诊断，直接给出 <strong>植物ID + 体检报告</strong>。减少操作步骤，避免体验断层。</p>
+                    </div>
+                    <!-- 2 -->
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border-t-4 border-blue-500 hover-card">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-2xl mb-4"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-3">2. 强化 AI 功能</h3>
+                        <ul class="text-sm text-slate-600 space-y-2 list-disc pl-4">
+                            <li><strong>智慧关怀</strong>：结合天气建议。“明日降温，请将发财树移入室内”。</li>
+                            <li><strong>AI 咨询</strong>：AI 初步诊断 -> 转人工专家。</li>
+                        </ul>
+                    </div>
+                    <!-- 3 -->
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border-t-4 border-pink-500 hover-card">
+                        <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center text-pink-600 text-2xl mb-4"><i class="fa-solid fa-heart"></i></div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-3">3. 情感化内容</h3>
+                        <ul class="text-sm text-slate-600 space-y-2 list-disc pl-4">
+                            <li><strong>植物拟人化</strong>，引入故事、历史。</li>
+                            <li><strong>拒绝复杂参数</strong>，多用图标/颜色抽象表达，提供情绪价值。</li>
+                        </ul>
+                    </div>
+                    <!-- 4 -->
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border-t-4 border-amber-500 hover-card">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 text-2xl mb-4"><i class="fa-solid fa-shield-cat"></i></div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-3">4. 家庭安全</h3>
+                        <p class="text-sm text-slate-600">看重展示植物针对 <strong>小孩、宠物</strong> 是否具有毒性。</p>
+                    </div>
+                    <!-- 5 -->
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border-t-4 border-teal-500 hover-card md:col-span-2 lg:col-span-2">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600 text-2xl shrink-0"><i class="fa-solid fa-briefcase"></i></div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800 mb-3">5. 生活化同时不乏专业性</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
+                                    <div class="bg-teal-50 p-3 rounded">
+                                        针对病虫害，给出<strong>生活化可以解决的建议</strong>。
+                                    </div>
+                                    <div class="bg-teal-50 p-3 rounded">
+                                        同时展示<strong>专业方面</strong>的见解和建议。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Execution Roadmap (Part 5, 6, 7) -->
+            <section id="section-tech" class="content-section max-w-6xl mx-auto space-y-12">
+                
+                <!-- Part 5 -->
+                <div>
+                    <div class="mb-6 border-l-4 border-slate-400 pl-4">
+                        <span class="text-slate-400 font-bold text-sm uppercase tracking-wider">Part 5</span>
+                        <h2 class="text-3xl font-black text-slate-800">核心能力对标</h2>
+                        <p class="text-slate-500">Benchmark: PictureThis</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Plant -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-leaf text-emerald-500"></i> 植物识别</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between border-b pb-2"><span class="text-slate-500">准确度</span><span class="font-bold">高</span></div>
+                                <div class="flex justify-between border-b pb-2"><span class="text-slate-500">耗时</span><span class="font-bold">短</span></div>
+                                <div class="flex justify-between border-b pb-2"><span class="text-slate-500">信息全面性</span><span class="font-bold">高</span></div>
+                            </div>
+                        </div>
+                        <!-- Disease -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-notes-medical text-blue-500"></i> 病虫害诊断</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between border-b pb-2"><span class="text-slate-500">准确度</span><span class="font-bold">高</span></div>
+                                <div class="flex justify-between border-b pb-2"><span class="text-slate-500">耗时</span><span class="font-bold">短</span></div>
+                                <div class="bg-blue-50 p-2 rounded mt-2 text-blue-800 text-xs">
+                                    建议：给出短期（立即行动）和长期养护建议
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider">Current Status vs Goals</div>
+
+                <!-- Part 6 & 7 Split -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Part 6: Current Issues -->
                     <div>
-                        <div style="font-size:24px; font-weight:700; color:var(--primary); margin-bottom:8px;">PictureThis: 全能百科</div>
-                        <p style="font-size:20px;">识别库庞大，定位于“什么都能扫”。技术侧重海量分类 (10k+)。</p>
+                        <div class="mb-6">
+                            <span class="text-red-500 font-bold text-sm uppercase tracking-wider">Part 6</span>
+                            <h2 class="text-2xl font-black text-slate-800">现有原型评估</h2>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-red-50 p-4 rounded-xl flex items-center gap-4 border border-red-100">
+                                <i class="fa-solid fa-hourglass-half text-2xl text-red-400"></i>
+                                <div><h4 class="font-bold text-slate-800">识别耗时长</h4><p class="text-sm text-slate-600">用户等待焦虑</p></div>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-xl flex items-center gap-4 border border-red-100">
+                                <i class="fa-solid fa-bullseye text-2xl text-red-400"></i>
+                                <div><h4 class="font-bold text-slate-800">准确度不够高</h4><p class="text-sm text-slate-600">相似品种误判</p></div>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-xl flex items-center gap-4 border border-red-100">
+                                <i class="fa-solid fa-vector-square text-2xl text-red-400"></i>
+                                <div><h4 class="font-bold text-slate-800">标记不准</h4><p class="text-sm text-slate-600">病灶范围漂移</p></div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div style="font-size:24px; font-weight:700; color:var(--secondary); margin-bottom:8px;">Plantin: 智能管家</div>
-                        <p style="font-size:20px;">强调“诊断”与“照料”，工具属性强。技术侧重 AR 诊断。</p>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px;">
-                        <div style="font-size:24px; font-weight:700; color:#fff; margin-bottom:8px;">我们的切入点</div>
-                        <p style="color:#ddd; font-size:22px;">针对 45+ 高龄用户，做<strong>“极简操作 + 专精诊断”</strong>的垂直工具。</p>
+
+                    <!-- Part 7: Goals -->
+                    <div class="bg-indigo-600 text-white p-8 rounded-3xl relative overflow-hidden shadow-lg">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                        <div class="relative z-10">
+                            <div class="mb-6">
+                                <span class="bg-indigo-500 px-2 py-1 rounded text-xs font-bold uppercase">Part 7</span>
+                                <h2 class="text-2xl font-black mt-2">最终上线目标</h2>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl font-black text-indigo-300 w-20">90%</div>
+                                    <div><h4 class="font-bold">准确率达标</h4><p class="text-sm text-indigo-200">US TOP300 植物/病虫害</p></div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl font-black text-indigo-300 w-20">5s</div>
+                                    <div><h4 class="font-bold">极速响应</h4><p class="text-sm text-indigo-200">端到端耗时</p></div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-4xl font-black text-indigo-300 w-20"><i class="fa-solid fa-check"></i></div>
+                                    <div><h4 class="font-bold">内容优化</h4><p class="text-sm text-indigo-200">结构化/情感化/安全提示</p></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
         </div>
-    </div>
-</div>
+    </main>
 
-<!-- Slide 3: Function Comparison -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">2. 竞品功能差异化</div>
-        <div class="slide-index">02</div>
-    </div>
-    <div class="content-area">
-        <div class="card no-bg">
-            <table class="vs-table">
-                <thead>
-                    <tr>
-                        <th width="18%">功能模块</th>
-                        <th width="41%">竞品痛点</th>
-                        <th width="41%" style="color:var(--primary)">我方策略</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>识别体验</td>
-                        <td>
-                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 流程割裂</div>
-                            <div style="font-size:20px;">需先选模式（查花/查树/查病），容易混淆。</div>
-                        </td>
-                        <td>
-                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 全能扫描</div>
-                            <div style="font-size:20px; color: #fff; margin-bottom: 4px;"><strong>Zero-Config:</strong> 无需选分类，单叶直出。</div>
-                            <div style="font-size:16px; color:var(--secondary); opacity: 0.8;">*仅针对病害诊断时，无需填写症状。</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>养护工具</td>
-                        <td>
-                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 参数复杂</div>
-                            <div style="font-size:20px;">专业光照计数值硬核，普通用户看不懂。</div>
-                        </td>
-                        <td>
-                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 红绿灯指示</div>
-                            <div style="font-size:20px; color: #fff;"><strong>Visual Toolkit:</strong> 复杂参数转化为“适宜/过强”的直观反馈。</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>结果展示</td>
-                        <td>
-                            <div class="vs-badge bad"><i class="fa-solid fa-xmark"></i> 建议单一</div>
-                            <div style="font-size:20px;">仅提供化学药剂建议，或泛泛的“少浇水”。</div>
-                        </td>
-                        <td>
-                            <div class="vs-badge good"><i class="fa-solid fa-check"></i> 分层建议</div>
-                            <div style="font-size:20px; color: #fff;"><strong>Dual Advice:</strong> 同时提供【家庭偏方】与【专业药剂】。</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+    <script>
+        function switchTab(sectionId) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
 
-<!-- Slide 4: Strategy (Fixed Alignment with Shorter Title) -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">3. 核心差异化策略</div>
-        <div class="slide-index">03</div>
-    </div>
-    <div class="content-area">
-        <div class="grid-3">
-            <!-- Col 1 -->
-            <div class="card border-left-secondary">
-                <h3 style="color:var(--secondary);"><i class="fa-solid fa-wand-magic-sparkles"></i> 无界识别</h3>
-                <div class="strat-box">
-                    <div class="strat-icon">⚡️</div>
-                    <div>
-                        <div class="strat-title">Zero-Config</div>
-                        <div class="strat-desc">植物/花草/蘑菇混合识别，无需预选。</div>
-                    </div>
-                </div>
-                <div class="strat-box">
-                    <div class="strat-icon">📍</div>
-                    <div>
-                        <!-- Shortened Title to Ensure Alignment -->
-                        <div class="strat-title">Zero-Input</div>
-                        <div class="strat-desc"><strong>病害专用：</strong>免去输入“地理位置/环境”等步骤。</div>
-                    </div>
-                </div>
-            </div>
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById('nav-' + sectionId)?.classList.add('active');
+        }
 
-            <!-- Col 2 -->
-            <div class="card border-left-danger">
-                <h3 style="color:var(--danger);"><i class="fa-solid fa-shield-cat"></i> 安全与省心</h3>
-                <div class="strat-box">
-                    <div class="strat-icon">🐱</div>
-                    <div>
-                        <div class="strat-title">Pet Safety</div>
-                        <div class="strat-desc">首屏大红框预警植物毒性，保护宠物。</div>
-                    </div>
-                </div>
-                <div class="strat-box">
-                    <div class="strat-icon">✈️</div>
-                    <div>
-                        <div class="strat-title">Vacation Mode</div>
-                        <div class="strat-desc">一键生成“代浇水指南”，发给邻居。</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Col 3 -->
-            <div class="card border-left-accent">
-                <h3 style="color:var(--accent);"><i class="fa-solid fa-flask"></i> 分层治疗</h3>
-                <div class="strat-box">
-                    <div class="strat-icon">🏠</div>
-                    <div>
-                        <div class="strat-title">Home Remedies</div>
-                        <div class="strat-desc">优先推荐家庭偏方（如肥皂水），安全无毒。</div>
-                    </div>
-                </div>
-                <div class="strat-box">
-                    <div class="strat-icon">💊</div>
-                    <div>
-                        <div class="strat-title">Pro Solutions</div>
-                        <div class="strat-desc">针对重症的专业化学药剂推荐。</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Slide 5: Capabilities -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">4. 核心能力: US Top 300 & 病害</div>
-        <div class="slide-index">04</div>
-    </div>
-    <div class="content-area">
-        <div class="grid-2">
-            <div class="card border-left-primary">
-                <h3 style="margin-bottom:24px;"><i class="fa-solid fa-layer-group" style="color: var(--primary)"></i> US Top 300 重点分类</h3>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                    <div class="icon-grid-item">
-                        <i class="fa-solid fa-lemon" style="color:var(--accent);"></i>
-                        <div class="title">Fruits & Veg</div>
-                        <div class="desc">家庭菜园刚需</div>
-                    </div>
-                    <div class="icon-grid-item">
-                        <i class="fa-solid fa-plant-wilt" style="color:var(--primary);"></i>
-                        <div class="title">Houseplants</div>
-                        <div class="desc">龟背竹/绿萝</div>
-                    </div>
-                    <div class="icon-grid-item">
-                        <i class="fa-brands fa-pagelines" style="color:var(--tertiary);"></i>
-                        <div class="title">Weeds</div>
-                        <div class="desc">庭院除草识别</div>
-                    </div>
-                    <div class="icon-grid-item">
-                        <i class="fa-solid fa-skull-crossbones" style="color:var(--danger);"></i>
-                        <div class="title">Toxic</div>
-                        <div class="desc">过敏/有毒预警</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card border-left-danger">
-                <h3><i class="fa-solid fa-virus" style="color: var(--danger)"></i> 病害诊断能力要求</h3>
-                <ul style="display:flex; flex-direction:column; gap:24px; margin-top:10px; list-style: none;">
-                    <li>
-                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">1. 区分物理 vs 病理</div>
-                        <div style="font-size: 20px;">模型需能区分“自然老化/机械损伤”与“真菌/虫害”。(竞品常误报)</div>
-                    </li>
-                    <li>
-                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">2. 精准视觉定位</div>
-                        <div style="font-size: 20px;">必须在图上输出精准的 <span style="color: var(--secondary); background: rgba(41,121,255,0.1); padding: 2px 8px; border-radius: 4px;">Bounding Box</span>，而非整株框选。</div>
-                    </li>
-                    <li>
-                        <div style="margin-bottom: 4px; color: #fff; font-weight: 700; font-size: 22px;">3. 严重程度分级</div>
-                        <div style="font-size: 20px;">输出 <span style="color:var(--accent)">Warning (轻微)</span> 或 <span style="color:var(--danger)">Critical (严重)</span>。</div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Slide 6: Issues -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">5. 现有原型主要问题</div>
-        <div class="slide-index">05</div>
-    </div>
-    <div class="content-area">
-        <!-- Problem 1 -->
-        <div class="prob-row">
-            <div class="prob-num">1</div>
-            <div class="prob-text">
-                <h4>无法识别植物，只能识别病虫害</h4>
-                <p>目前仅能识别病害，缺乏植物主体识别能力。用户不知道“是什么树病了”，体验割裂。</p>
-            </div>
-        </div>
-
-        <!-- Problem 2 -->
-        <div class="prob-row">
-            <div class="prob-num">2</div>
-            <div class="prob-text">
-                <h4>病虫害识别时间长、准确度低</h4>
-                <p>端侧推理耗时过长。且极易将“缺水症状”误判为“病毒感染”，导致错误救治。</p>
-            </div>
-        </div>
-
-        <!-- Problem 3 -->
-        <div class="prob-row">
-            <div class="prob-num">3</div>
-            <div class="prob-text">
-                <h4>病虫害区域标注不准确</h4>
-                <p>Bounding Box 经常发生漂移，或者粗暴地框选了整株植物，无法精确定位病灶。</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Slide 7: Requirements -->
-<div class="slide-container">
-    <div class="slide-header">
-        <div class="slide-title">6. 合作需求与指标</div>
-        <div class="slide-index">06</div>
-    </div>
-    <div class="content-area">
-        <div class="grid-2">
-            <div class="card border-left-secondary">
-                <h3><i class="fa-solid fa-code-branch" style="color: var(--secondary)"></i> 合作任务需求</h3>
-                <ul style="display:flex; flex-direction:column; gap:32px; margin-top:10px; list-style: none;">
-                    <li>
-                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">全能识别模型 (Omni-Model)</strong>
-                        <span style="font-size: 20px;">支持植物/花草/蘑菇混合识别。单次推理同时输出 ID 与 病害。</span>
-                    </li>
-                    <li>
-                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">单叶片精细诊断</strong>
-                        <span style="font-size: 20px;">仅凭单张叶片特写，准确识别植物种类并定位微小病灶。</span>
-                    </li>
-                    <li>
-                        <strong style="font-size: 24px; display: block; margin-bottom: 6px;">分层建议匹配</strong>
-                        <span style="font-size: 20px;">算法需输出病害严重等级，以便匹配“家庭偏方”或“专业药剂”。</span>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="card border-left-primary">
-                <h3><i class="fa-solid fa-flag-checkered" style="color: var(--primary)"></i> 优化目标</h3>
-                <div style="display:flex; flex-direction:column; gap:24px; margin-top:10px;">
-                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:22px; font-weight: 700; color:var(--primary); margin-bottom:6px;">目标 1: 功能完备性</div>
-                        <div style="font-size: 20px;">植物 ID 识别率 > 95%，病害诊断逻辑自洽。</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:22px; font-weight: 700; color:var(--secondary); margin-bottom:6px;">目标 2: 响应速度</div>
-                        <div style="font-size: 20px;">中端机型上，全流程耗时达到“秒开”级别。</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:10px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-size:22px; font-weight: 700; color:var(--danger); margin-bottom:6px;">目标 3: 标注精准度</div>
-                        <div style="font-size: 20px;">IoU 显著提升，病灶定位精准，无明显漂移。</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        // Init
+        switchTab('section-market');
+    </script>
 </body>
 </html>
